@@ -72,19 +72,20 @@ for(i in 1:ncol(qualitatives_vars)){
           xlab = colnames(qualitatives_vars)[i])
 }
 ```
+Analyse multivariée
 Matrice corrélation
 
 ```{r cars}
 library(reshape2)
 library(ggplot2)
 quantitatives_vars = data.frame(
-  Age = data$Age,
-  Experience = data$ExperienceInCurrentDomain,
-  JoiningYear = data$JoiningYear
+  Age = data_project$Age,
+  Experience = data_project$ExperienceInCurrentDomain,
+  JoiningYear = data_project$JoiningYear
 )
 
 # matrice de corrélation
-cor_mat = cor(quantitative_vars, use = "complete.obs")
+cor_mat = cor(quantitatives_vars, use = "complete.obs")
 cor_mat
 
 # heatmap
@@ -109,12 +110,12 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
 ```{r}
 library(ggplot2)
 library(reshape2)
 
-qualitatives_vars = data.frame(Education = as.factor(data$Education), City = as.factor(data$City), PaymentTier = as.factor(data$PaymentTier), Gender = as.factor(data$Gender), EverBenched = as.factor(data$EverBenched))
+qualitatives_vars = data.frame(Education = as.factor(data_project$Education), City = as.factor(data_project$City), PaymentTier = as.factor(data_project$PaymentTier), Gender = as.factor(data_project$Gender), EverBenched = as.factor(data_project$EverBenched))
 
 for(i in 1:ncol(qualitatives_vars)){
 
