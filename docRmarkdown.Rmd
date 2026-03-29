@@ -72,6 +72,81 @@ for(i in 1:ncol(qualitatives_vars)){
           xlab = colnames(qualitatives_vars)[i])
 }
 ```
+Matrice corrélation
+
+```{r cars}
+library(reshape2)
+library(ggplot2)
+quantitatives_vars = data.frame(
+  Age = data$Age,
+  Experience = data$ExperienceInCurrentDomain,
+  JoiningYear = data$JoiningYear
+)
+
+# matrice de corrélation
+cor_mat = cor(quantitative_vars, use = "complete.obs")
+cor_mat
+
+# heatmap
+melted_cor_mat = melt(cor_mat)
+
+ggplot(data = melted_cor_mat, aes(x = Var1, y = Var2, fill = value)) + 
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+  labs(title = "Correlation heatmap", x = "", y = "", fill = "corrélation")
+```
+
+```{r pressure, echo=FALSE}
+for(i in 1:ncol(quantitatives_vars)){
+  main_i = paste0("Boxplot de ", colnames(quantitatives_vars)[i],
+                  "\n en fonction du départ de l'entreprise")
+  
+  boxplot(quantitatives_vars[,i] ~ target,
+          col = c("lightblue", "pink"),
+          main = main_i,
+          ylab = colnames(quantitatives_vars)[i],
+          xlab = "LeaveOrNot")
+}
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+library(ggplot2)
+library(reshape2)
+
+qualitatives_vars = data.frame(Education = as.factor(data$Education), City = as.factor(data$City), PaymentTier = as.factor(data$PaymentTier), Gender = as.factor(data$Gender), EverBenched = as.factor(data$EverBenched))
+
+for(i in 1:ncol(qualitatives_vars)){
+
+  var_target_counts = melt(table(qualitatives_vars[,i], target))
+
+  xlab_i = colnames(qualitatives_vars)[i]
+
+  print(
+    ggplot(data = var_target_counts,
+           aes(x = Var1, y = value, fill = target)) +
+      geom_bar(stat = "identity", color = "black") +
+      theme_minimal() +
+      labs(x = xlab_i, y = "Nombre", fill = "LeaveOrNot")
+  )
+}
+```
+```{r}
+for(i in 1:ncol(qualitatives_vars)){
+
+  var_target_counts = melt(table(qualitatives_vars[,i], target))
+
+  xlab_i = colnames(qualitatives_vars)[i]
+
+  print(
+    ggplot(data = var_target_counts,
+           aes(x = Var1, y = value, fill = target)) +
+      geom_bar(stat = "identity", color = "black", position = "fill") +
+      theme_minimal() +
+      labs(x = xlab_i, y = "Proportion", fill = "LeaveOrNot")
+  )
+}
+```
 
 ## R Markdown
 
