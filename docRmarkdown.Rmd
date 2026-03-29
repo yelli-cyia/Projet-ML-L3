@@ -4,9 +4,58 @@ author: "Adélie, Yelli, Paulina"
 date: "2026-03-10"
 output: html_document
 ---
+## Lecture de notre jeu de données
+```{r}
+data_project=read.csv("Employee.csv")
+```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#Target
+```{r}
+target = factor(data_project$LeaveOrNot, labels = c ("Rester", "Partir"))
+data_project$LeaveOrNot = as.factor(data_project$LeaveOrNot)
+```
+
+#Transformation des variables
+```{r}
+summary(data_project$Age)
+```
+
+#Répartition
+```{r}
+summary(data_project)
+quantitatives_vars= data.frame(data_project$JoiningYear, 
+                             data_project$PaymentTier,
+                             data_project$Age,
+                             data_project$ExperienceInCurrentDomain)
+
+qualitatives_vars= data.frame(data_project$Education, data_project$City,
+                              data_project$Gender, data_project$EverBenched)
+```
+```{r}
+summary(target)
+```
+
+## Analyse univariée
+```{r}
+#Pas de valeurs manquantes
+```
+
+###  Analyse statististique
+
+#### Les Variables quantitatives
+```{r, out.width = "50%", fig.align = "center"}
+for(i in 1:ncol(quantitatives_vars)){
+  main_i = paste0("Histogramme de ", colnames(quantitatives_vars)[i])
+  hist(quantitatives_vars[,i], col = i+1, main = main_i, 
+       xlab = colnames(quantitatives_vars)[i])
+}
+```
+```{r, out.width = "50%", fig.align = "center"}
+for(i in 1:ncol(qualitatives_vars)){
+  main_i = paste0("Barplot de ", colnames(qualitatives_vars)[i])
+  barplot(table(qualitatives_vars[,i]), col = 2:10, main = main_i, 
+          xlab = colnames(qualitatives_vars)[i])
+}
 ```
 
 ## R Markdown
