@@ -4,30 +4,46 @@ author: "Adélie, Yelli, Paulina"
 date: "2026-03-10"
 output: html_document
 ---
-## Lecture de notre jeu de données
+# PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2
+
+Dans un premier temps, nous allons lire notre base de données et procéder à l'analyse préliminaire
+
+## Analyse Préliminaire
 ```{r}
 data_project=read.csv("Employee.csv")
 ```
 
-#Analyse Univariée
-
-## Analyse Statistique
+Déterminons le nombre de lignes et de colonnes de la base de données
 ```{r}
-colnames(data_project)
-
-dim(data_project)
+dim(data_project) 
+colnames(data_project) #nom des colonnes
+head(data_project)
 ```
 
-#Target
+## Analyse des variables
+
+Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise.
+Nous allons donc travailler avec la la variable LeaveOrNot qui est une variable binaire
+0 si l'employé reste et 1 si l'employé part
+
 ```{r}
 target = factor(data_project$LeaveOrNot, labels = c ("Rester", "Partir"))
 data_project$LeaveOrNot = as.factor(data_project$LeaveOrNot)
+summary(data_project$LeaveOrNot)
 ```
 
-#Analyse de la target
+Les variables qui peuvent ne pas servir
 ```{r}
-summary(data_project$LeaveOrNot)
+#Pour l'instant je pense que tout sera utile
+```
 
+# Transformation des variables pour notre étude 
+Pour la variable Education, il faut faire un label encoding 
+```{r}
+#J'hésite à regrouper l'âge en classe d'âge
+
+#data_project$Education = as.numeric(factor(data_project$Education, 
+                          #           levels = c("Bachelors", "Masters", "PHD")))
 ```
 
 #Répartition
@@ -48,21 +64,8 @@ for(i in 1:ncol(quantitatives_vars)){
   hist(quantitatives_vars[,i], col = i+1, main = main_i, 
        xlab = colnames(quantitatives_vars)[i])
 }
-
-for(i in 1:ncol(quantitatives_vars)){
-  main_i = paste0("Histogramme de ", colnames(quantitatives_vars)[i])
-  boxplot(quantitatives_vars[,i], col = i+1, main = main_i, 
-       xlab = colnames(quantitatives_vars)[i])
-}
-
 ```
-```{r, out.width = "50%", fig.align = "center"}
-for(i in 1:ncol(qualitatives_vars)){
-  main_i = paste0("Barplot de ", colnames(qualitatives_vars)[i])
-  barplot(table(qualitatives_vars[,i]), col = 2:10, main = main_i, 
-          xlab = colnames(qualitatives_vars)[i])
-}
-```
+
 
 #### Les Variables qualitatives
 ```{r, out.width = "50%", fig.align = "center"}
