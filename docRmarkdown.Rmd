@@ -193,11 +193,36 @@ library("caret")
 
 ```
 ```{r}
-#pour le moment ne marche pas
 mean(target_pred == target_test)
-recall(data = target_pred, reference = target_test, relevant = "0")
-precision(data = target_pred, reference = target_test, relevant = "0")
+recall(data = target_pred, reference = target_test, relevant = "Rester")
+precision(data = target_pred, reference = target_test, relevant = "Rester")
 
 confusionMatrix(data = target_pred, reference = target_test)$table
 ```
+```{r}
+plotcp(classifTree, upper = "splits")
+```
+
+```{r}
+classifTree$cptable
+xerror  = classifTree$cptable[, 4]
+xstd    = classifTree$cptable[, 5]
+```
+On trouve la meilleure valeur du paramètre de complexité
+```{r}
+cp          = classifTree$cptable[, 1]
+min.xerror  = which.min(xerror)
+bestcp      = cp[min(which(xerror < (xerror [min.xerror] + xstd[min.xerror])))]
+```
+On utilise cette valeur pour élaguer l'arbre
+```{r}
+prunedTree = prune(tree = classifTree, cp = bestcp)
+```
+On trace ensuite l'abre ;
+```{r}
+rpart.plot(prunedTree, type = 3, extra = 2, fallen.leaves = TRUE, main = "Arbre de prédiction pour savoir si un employé va quitter ou non une entreprise")  
+```
+On trouve le même arbre qu'avant, je ne sais pas si c'est normal...
+
+
 
