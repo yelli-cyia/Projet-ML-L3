@@ -148,23 +148,56 @@ for(i in 1:ncol(qualitatives_vars)){
   )
 }
 ```
+Créer un dataframe nommé `predictive_vars` contenant les variables qualitatives et quantitatives que l'on souhaite utiliser pour prédire la target :
+```{r}
 
-## R Markdown
+predictive_vars = data.frame(Age = data_project$Age,
+  Experience = data_project$ExperienceInCurrentDomain,
+  JoiningYear = data_project$JoiningYear,Education = as.factor(data_project$Education), City = as.factor(data_project$City), PaymentTier = as.factor(data_project$PaymentTier), Gender = as.factor(data_project$Gender), EverBenched = as.factor(data_project$EverBenched))
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```
+partager le jeu de données en Train/Test, avec 80% des observations placées dans l’ensemble d’apprentissage
+```{r}
+set.seed(1234) #fixe la graine
+#on va créer nos parties séparées
+n       = nrow(qualitatives_vars) 
+inTrain = sample(1:n, size = round(0.8 * n), replace = FALSE)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+predictive_vars_test    = predictive_vars[-inTrain,]
+target_test             = target[-inTrain]
+predictive_vars_train   = predictive_vars[inTrain,]
+target_train            = target[inTrain]
 
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, eval = FALSE, message = FALSE}
+install.packages("rpart")
+install.packages("rpart.plot")
+library(rpart)
+library(rpart.plot)
+?rpart
+?rpart.plot
+classifTree = rpart(target_train ~ ., data = predictive_vars_train, 
+                    method = "class")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+rpart.plot(x = classifTree, type = 3, extra = 2, fallen.leaves = TRUE,  
+           main = "Arbre de prédiction pour savoir si un employé va quitter ou non une entreprise")  
+```
+```{r}
+target_pred = predict(object = classifTree, newdata = predictive_vars_test, type = "class")
+install.packages("caret")
+library("caret")
+
+```
+```{r}
+#pour le moment ne marche pas
+mean(target_pred == target_test)
+recall(data = target_pred, reference = target_test, relevant = "0")
+precision(data = target_pred, reference = target_test, relevant = "0")
+
+confusionMatrix(data = target_pred, reference = target_test)$table
+```
+
