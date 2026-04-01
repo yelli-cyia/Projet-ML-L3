@@ -48,13 +48,15 @@ Pour la variable Education, il faut faire un label encoding
 
 #Répartition
 ```{r}
-quantitatives_vars= data.frame(data_project$JoiningYear, 
-                             data_project$PaymentTier,
-                             data_project$Age,
-                             data_project$ExperienceInCurrentDomain)
+quantitatives_vars= data.frame(JoiningYear= data_project$JoiningYear , 
+                               PaymentTier=data_project$PaymentTier,
+                               Age=data_project$Age,
+                               Experience=data_project$ExperienceInCurrentDomain)
 
-qualitatives_vars= data.frame(data_project$Education, data_project$City,
-                              data_project$Gender, data_project$EverBenched)
+qualitatives_vars= data.frame(Education=data_project$Education, 
+                              City= data_project$City,
+                              Sex=data_project$Gender, 
+                              Benched=data_project$EverBenched)
 ```
 
 #### Les Variables quantitatives
@@ -228,4 +230,33 @@ rpart.plot(prunedTree, type = 3, extra = 2, fallen.leaves = TRUE, main = "Arbre 
 On trouve le même arbre qu'avant, je ne sais pas si c'est normal...
 
 
+#2. Méthodes des K plus proche voisin
+
+On va essayer de faire la méthode des KNN.
+
+Dans un premier temps, on va charger le jeu de données
+```{r, results = "hide", message = FALSE}
+library(caret)
+```
+
+On va faire un label encoding ou du dummy encoding
+```{r}
+qualitatives_vars_dummy= data.frame(Women= 1*(qualitatives_vars$Gender=="Female"),
+                                    Benched= 1*(qualitatives_vars$EverBenched=="Yes"))
+```
+
+Pour le label encoding
+```{r}
+qualitative_vars_encoded=as.data.frame(as.numeric(factor(qualitatives_vars$Education, 
+                                     levels = c("Bachelors", "Masters", "PHD"))))
+```
+
+A présent, on va regrouper les variables quantitatives et celles qui ont été transformées pour prédire la target
+```{r}
+#predictive_vars =cbind(Seniority=quantitatives_vars$JoiningYear,
+#                       PaymentTier=quantitatives_vars$PaymentTier,
+#                       Experience=quantitatives_vars$Experience,
+ #                      Sex=quantitatives_vars$Age,
+  #                     qualitative_vars_encoded,qualitatives_vars_dummy)
+```
 
