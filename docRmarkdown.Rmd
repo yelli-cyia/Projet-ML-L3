@@ -432,3 +432,50 @@ L’arbre élagué conserve la même structure logique que l’arbre initial, ma
 Différences entre l’arbre initial et l’arbre élagué :
 L’arbre élagué contient moins de nœuds et moins de niveaux. Certaines branches profondes du premier arbre ont été supprimées car elles n’apportaient pas d’amélioration significative. Les règles principales (JoiningYear, PaymentTier) restent identiques, ce qui montre que l’élagage n’a pas modifié la logique globale du modèle. L’arbre élagué est plus simple à interpréter, plus stable et moins sensible au bruit. En résumé : l’arbre élagué est une version “nettoyée” du premier arbre, plus robuste et plus lisible, tout en conservant les décisions essentielles.
 
+# Choix des deux classifieur : 
+# Pourquoi on a choisit l'Arbre de décision comme classifieur : 
+Nous avons choisi l’arbre de décision comme premier classifieur car il ne repose sur aucune hypothèse forte concernant la distribution des variables ou leur indépendance, ce qui le rend particulièrement adapté à notre jeu de données où les variables explicatives présentent des dépendances et des distributions non gaussiennes. Il accepte naturellement les variables qualitatives et quantitatives, capture automatiquement les interactions entre prédicteurs et fournit un modèle très lisible. La visualisation de l’arbre met immédiatement en évidence les variables les plus discriminantes (notamment JoiningYear puis PaymentTier) ainsi que les règles de décision utilisées pour distinguer les employés qui restent de ceux qui partent, sous forme de segments simples et explicites. Cette interprétabilité, combinée à sa robustesse face à des données hétérogènes et complexes, ainsi qu’à la possibilité d’élaguer l’arbre pour éviter le surapprentissage, fait de l’arbre de décision un choix cohérent et pertinent pour notre première approche de classification.
+
+# Classifieur 2 : 
+Pour sélectionner notre second classifieur, nous hésitions entre la méthode des K plus proches voisins et le classifieur Naïve Bayes. Comme l’hypothèse fondamentale de Naïve Bayes repose sur l’indépendance conditionnelle des variables explicatives sachant la classe, nous avons cherché à vérifier si cette hypothèse était raisonnablement respectée dans notre jeu de données. L’objectif était de déterminer si les variables explicatives sont effectivement indépendantes les unes des autres conditionnellement à LeaveOrNot, afin d’orienter et de justifier notre choix de classifieur.
+# Étape 1 — Vérifier les corrélations entre variables quantitatives, séparément pour chaque classe : 
+Nous calculons ici les matrices de corrélation entre les variables quantitatives, séparément pour chaque classe de la variable cible (LeaveOrNot = 0 et LeaveOrNot = 1). L’objectif est de vérifier si les variables explicatives sont indépendantes conditionnellement à la classe, ce qui est l’hypothèse centrale du classifieur naïf bayésien.
+```{r}
+cor(data[data$LeaveOrNot == 0, c("Age","ExperienceInCurrentDomain","JoiningYear","PaymentTier")])
+cor(data[data$LeaveOrNot == 1, c("Age","ExperienceInCurrentDomain","JoiningYear","PaymentTier")])
+```
+Les corrélations obtenues sont toutes très faibles, généralement comprises entre –0.22 et +0.12, ce qui indique une faible dépendance linéaire entre les variables quantitatives, aussi bien dans la classe “reste” que dans la classe “part”.
+En particulier : Age et Experience : corrélation ≈ 0.10 → très faible, JoiningYear et PaymentTier : corrélation ≈ –0.22 → faible, Les autres corrélations sont proches de 0, Ces résultats montrent que les variables quantitatives ne présentent pas de dépendances fortes, même conditionnellement à la classe.
+Conclusion : pour les variables quantitatives uniquement, l’hypothèse d’indépendance conditionnelle de Naive Bayes n’est pas fortement violée.
+
+# Étape 2 — Vérifier les dépendances entre variables qualitatives, conditionnellement à la classe : 
+Dans cette étape, nous testons l’hypothèse d’indépendance entre deux variables qualitatives (Education et City), séparément pour chaque classe de la variable cible (LeaveOrNot = 0 et LeaveOrNot = 1). Nous utilisons pour cela le test du Chi‑deux d’indépendance, qui permet de déterminer si la répartition des modalités d’une variable dépend de l’autre.
+```{r}
+table0 <- table(data$Education[data$LeaveOrNot==0], data$City[data$LeaveOrNot==0])
+chisq.test(table0)
+
+table1 <- table(data$Education[data$LeaveOrNot==1], data$City[data$LeaveOrNot==1])
+chisq.test(table1)
+```
+Dans les deux cas (classe 0 et classe 1), le test du Chi‑deux renvoie un p‑value < 2.2e‑16, très largement inférieur au seuil classique de 5 %.
+Cela signifie que nous rejetons l’hypothèse d’indépendance entre Education et City. Autrement dit, les deux variables qualitatives sont significativement dépendantes, même lorsqu’on conditionne par la classe LeaveOrNot. Cette dépendance forte viole directement l’hypothèse d’indépendance conditionnelle du classifieur naïf bayésien.
+
+# Étape 3 — Vérifier si les distributions conditionnelles se recouvrent
+# Les distributions sont-elles gaussiennes ?
+Les histogrammes montrent : Age → distribution asymétrique, pas normale, Experience → distribution très concentrée, pas normale, PaymentTier → distribution catégorielle déguisée en numérique, JoiningYear → distribution en “paliers”, pas normale. Donc l’hypothèse de normalité n’est pas respectée.
+# Les distributions sont-elles différentes entre les classes ?
+Regardons les boxplots :
+Age : les distributions se recouvrent presque totalement
+Naive Bayes aura du mal à séparer les classes.
+Experience : même chose, distributions très proches
+Peu discriminant.
+JoiningYear : là, il y a une vraie différence
+Les employés qui partent ont rejoint plus récemment.
+Variable discriminante.
+Conclusion : seule JoiningYear aide vraiment Naive Bayes.
+Ce n’est pas éliminatoire, mais c’est un point contre Naive Bayes.
+
+# Conclusion : 
+ L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien.
+De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre dataset, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
+
