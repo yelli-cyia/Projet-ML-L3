@@ -58,7 +58,7 @@ colnames(data_project) #nom des colonnes
 head(data_project)
 ```
 
-## Analyse des variables
+## Analyse des variables (début de l'analyse univariées)
 
 Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise.
 Nous allons donc travailler avec la la variable LeaveOrNot qui est une variable binaire
@@ -191,6 +191,8 @@ for(i in 1:ncol(qualitatives_vars)){
   )
 }
 ```
+# Fin de l'analyse multivariée
+
 Créer un dataframe nommé `predictive_vars` contenant les variables qualitatives et quantitatives que l'on souhaite utiliser pour prédire la target :
 ```{r}
 
@@ -297,4 +299,136 @@ A présent, on va regrouper les variables quantitatives et celles qui ont été 
  #                      Sex=quantitatives_vars$Age,
   #                     qualitative_vars_encoded,qualitatives_vars_dummy)
 ```
+#Classifieur : Arbre de décisions : 
+# II- Traitement des données : 
+Avant de construire un classifieur (arbre de décision), il est nécessaire de :
+
+- identifier les variables contenant des valeurs manquantes ;
+- analyser quelles variables semblent les plus pertinentes pour prédire la variable cible ;
+- préparer les données pour éviter tout data leakage ;
+- constituer un jeu d’apprentissage et un jeu de test.
+# 1- Chargement et préparation du jeu de données
+```{r}
+library(readr)
+data =  read_csv("Employee (1).csv")
+```
+# Vérification de la structure
+Nous examinons la structure du dataset pour vérifier les types des variables et identifier d'éventuelles incohérences.
+```{r}
+str(data)
+```
+Les variables qualitataive (Education, City, Gender, EverBenched) sont importées en chr, il faudra peut-être les convertir en facteur. La variable cibe LeaveOrNot est numérique et devra peut-être transformée en facteur binaire.
+
+
+
+# 2- Identification des valeurs manquantes
+Ce code calcule le nombre de valeurs manquantes pour chaque variable du jeu de données.
+```{r}
+colSums(is.na(data))
+```
+On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifie que nous n'avons pas besoin d'appliquer de méthodes d'imputataion.
+
+# 3- Définition des variables qualitatives, quantitatives et de la cible
+```{r}
+qualitative_vars  = c("Education", "City", "Gender", "EverBenched")
+quantitative_vars = c("JoiningYear", "PaymentTier", "Age", "ExperienceInCurrentDomain")
+target            = "LeaveOrNot"
+```
+Nous séparons les variables selon leur nature(qualitative vs quantitative) afin de faciliter les analyses univariées et multivariées.
+
+#Création du dataframe contenant uniquement les variables utiles :
+Nous construisons un nouveau dataframe contenant uniquement les variables nécessaires à la prédiction, afin d'éviter d'inclure des colonnes inutiles.
+
+```{r}
+predictive_vars = data[, c(qualitative_vars, quantitative_vars)]
+target_vector   = data[, target]
+```
+
+# Vérification des types
+Nous vérifons le type de chaque variable pour s'assurer qu'elles sont bien reconnues comme numérique ou catégorielles  avant la modélisation.
+```{r}
+str(predictive_vars)
+str(target_vector)
+```
+Les variables qualitatives apparaissent encore en "chr", ce qui indique qu'un passage en facteur sera nécessaire. Les variables quantitatives sont bien en format numérique. La variable cible LeaveOrNot est encore en numérique : il faudra potentiellement la convertir en facteur pour la classification.
+
+# 4- Transformation des variables qualitatives
+Dans cette étape, nous convertissons les variables qualitatives au format factor. Cette transformation est essentielle car les algorithmes de classification (comme les arbres de décision, le KNN ou le Naive Bayes) ne peuvent pas exploiter correctement des variables textuelles au format character. Le passage en facteur permet à R d’interpréter ces colonnes comme des catégories, ce qui garantit une modélisation correcte.
+
+```{r}
+predictive_vars$Education   = as.factor(predictive_vars$Education)
+predictive_vars$City        = as.factor(predictive_vars$City)
+predictive_vars$Gender      = as.factor(predictive_vars$Gender)
+predictive_vars$EverBenched = as.factor(predictive_vars$EverBenched)
+target_vector = as.factor(data$LeaveOrNot)
+```
+
+# 5- Constitution du jeu d’apprentissage et du jeu de test (Holdout 80/20)
+# Split
+Ce bloc de code réalise la séparation du jeu de données en deux parties : 80 % pour l’apprentissage (train), 20 % pour le test (test). La fonction set.seed(1234) garantit que la sélection aléatoire sera reproductible. Ensuite, sample() tire au hasard les indices correspondant aux observations du jeu d’apprentissage. Les variables explicatives (predictive_vars) et la variable cible (target_vector) sont ensuite découpées selon ces indices.
+
+```{r}
+set.seed(1234)
+n = nrow(data)
+train_index = sample(1:n, size = 0.8*n)
+predictive_vars_train = predictive_vars[train_index, ]
+predictive_vars_test  = predictive_vars[-train_index, ]
+target_train = target_vector[train_index]
+target_test  = target_vector[-train_index]
+```
+Ce découpage permet d’entraîner les modèles sur un ensemble d’observations tout en conservant un jeu de test indépendant pour évaluer leur performance.
+La répartition 80/20 est un standard en machine learning et assure un bon compromis entre quantité de données pour l’apprentissage et fiabilité de l’évaluation.
+
+# 6- Visualisation de l’arbre
+Dans cette étape, nous entraînons un arbre de décision sur le jeu d'apprentissage. Le modèle utilise toutes les variables explicatives pour prédire la variable cibe LeaveOrNot. L'objectif est d'identifier les critères les plus discriminants permettant de séparer les employés qui restent de ceux qui quittent l'entreprise. 
+
+```{r}
+train_data = predictive_vars_train
+train_data$LeaveOrNot = target_train
+library(rpart)
+library(rpart.plot)
+
+classifTree = rpart(
+  LeaveOrNot ~ .,
+  data = train_data,
+  method = "class"
+)
+rpart.plot(classifTree, type = 3, extra = 3, fallen.leaves = TRUE, main = "Arbre — Employee Dataset")
+```
+L’arbre montre que la variable la plus importante pour prédire le départ d’un employé est JoiningYear : les employés ayant rejoint l’entreprise à partir de 2018 sont majoritairement classés comme quittant l’entreprise. Pour les employés entrés avant 2018, la variable suivante la plus discriminante est PaymentTier:Les employés avec un PaymentTier = 3 (niveau de rémunération élevé) sont majoritairement classés comme restant. Les employés avec un PaymentTier < 3 présentent davantage de départs, surtout lorsque l’année d’entrée est ancienne. L’arbre met également en évidence des effets secondaires : Education, Gender, Age et City interviennent dans les branches plus profondes, mais leur influence est moins forte. Certaines feuilles montrent une forte majorité de “0” (rester), ce qui indique un dataset déséquilibré où la majorité des employés ne quittent pas l’entreprise. Globalement, l’arbre révèle que l’année d’entrée et le niveau de rémunération sont les facteurs les plus déterminants dans la prédiction du turnover.
+
+# 7- Prédiction sur le jeu de test
+Dans cette étape, nous utilisons l’arbre de décision entraîné pour prédire la classe (LeaveOrNot) sur le jeu de test. Nous comparons ensuite les prédictions au vrai label grâce à une matrice de confusion, ce qui permet d’évaluer la performance du modèle sur des données jamais vues.
+
+```{r}
+library(caret)
+pred_test = predict(classifTree, predictive_vars_test, type = "class")
+confusionMatrix(pred_test, target_test)
+
+```
+Le modèle obtient une accuracy de 81,85 %, ce qui indique une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. La sensibilité (0.927) est très élevée : le modèle identifie très bien les employés qui restent (classe 0). En revanche, la spécificité (0.502) est plus faible : le modèle a plus de difficulté à détecter correctement les employés qui partent (classe 1). Le kappa (0.56) montre une concordance correcte entre les prédictions et la réalité, supérieure à un simple hasard. Globalement, le modèle est performant mais tend à prédire plus souvent “rester” que “partir”, ce qui reflète probablement un déséquilibre dans le dataset (majorité de classe 0).
+
+# 8- Élagage de l’arbre (Cost‑Complexity Pruning)
+Ce bloc de code réalise l’élagage de l’arbre de décision à l’aide du Cost-Complexity Pruning. L’objectif est d’identifier la valeur optimale du paramètre de complexité (cp) qui minimise l’erreur de validation croisée (xerror), puis de reconstruire un arbre plus simple et plus généraliste. Cela permet de réduire le surapprentissage et d’obtenir un modèle plus interprétable.
+```{r}
+plotcp(classifTree, upper = "splits")
+classifTree$cptable
+
+xerror = classifTree$cptable[, "xerror"]
+cp     = classifTree$cptable[, "CP"]
+bestcp = cp[which.min(xerror)]
+
+prunedTree = prune(classifTree, cp = bestcp)
+
+rpart.plot(prunedTree, type = 3, extra = 3, fallen.leaves = TRUE, main = "Arbre élagué — Employee Dataset")
+```
+# Interprétation du résultat du code (table CP + choix du bestcp)
+La table cptable affiche, pour chaque niveau de complexité, l’erreur relative et l’erreur de validation croisée. Le meilleur cp correspond à la ligne où xerror est minimal. Dans notre cas, ce cp optimal est celui utilisé pour élaguer l’arbre. Cela signifie que l’arbre final est celui qui offre le meilleur compromis entre simplicité et performance prédictive.
+
+# Interprétation de l’arbre élagué
+L’arbre élagué conserve la même structure logique que l’arbre initial, mais avec moins de branches. Les variables les plus importantes restent les mêmes : JoiningYear (variable la plus discriminante), PaymentTier,puis, plus loin dans l’arbre : Education, Gender, Age, City. L’élagage supprime les divisions les moins utiles, c’est‑à‑dire celles qui n’améliorent pas significativement la performance. Le résultat est un arbre plus court, plus lisible, qui généralise mieux et limite le risque de surapprentissage.
+
+# En quoi cet arbre diffère du premier ?
+Différences entre l’arbre initial et l’arbre élagué :
+L’arbre élagué contient moins de nœuds et moins de niveaux. Certaines branches profondes du premier arbre ont été supprimées car elles n’apportaient pas d’amélioration significative. Les règles principales (JoiningYear, PaymentTier) restent identiques, ce qui montre que l’élagage n’a pas modifié la logique globale du modèle. L’arbre élagué est plus simple à interpréter, plus stable et moins sensible au bruit. En résumé : l’arbre élagué est une version “nettoyée” du premier arbre, plus robuste et plus lisible, tout en conservant les décisions essentielles.
 
