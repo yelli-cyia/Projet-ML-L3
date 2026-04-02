@@ -7,7 +7,45 @@ output: html_document
 # PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2
 
 Dans un premier temps, nous allons lire notre base de données et procéder à l'analyse préliminaire
+# I- Analyse préliminaire des données : 
+# A- Présentation générale :
+https://www.kaggle.com/datasets/tawfikelmetwally/employee-dataset
+# 1- Contexte du jeu de données : 
+  Ce jeu de données regroupe des informations détaillées sur les employés d’une entreprise, incluant leurs caractéristiques démographiques (âge, genre, ville), leur parcours académique (niveau d’études), leur historique professionnel (année d’entrée, expérience dans le domaine), ainsi que des éléments liés à leur situation de travail (niveau de rémunération, périodes éventuelles de “bench”).
+Les données ont été anonymisées afin de préserver la confidentialité tout en permettant une analyse approfondie des dynamiques internes de la main-d’œuvre.
+  Ce type de dataset est couramment utilisé dans les études de ressources humaines, notamment pour analyser les facteurs associés au turnover, à la rétention, à la diversité, ou encore à la structure salariale. 
 
+# 2- Lien de téléchargement :  (reproductibilité)
+  Pour garantir la reproductibilité des analyses, le dataset peut être téléchargé à partir de la source suivante (à adapter selon ta plateforme réelle) :
+Lien de téléchargement : https://www.kaggle.com/datasets/tawfikelmetwally/employee-dataset
+
+# 3- Objectif de l’étude : 
+  L’objectif principal de cette analyse est de comprendre les facteurs qui influencent la décision d’un employé de quitter l’entreprise.
+Plus précisément, il s’agit de :
+Analyser les caractéristiques des employés selon qu’ils restent ou quittent l’entreprise ;
+Identifier les variables explicatives pertinentes pour modéliser le départ (LeaveOrNot) ;
+Préparer les données pour une éventuelle modélisation prédictive (classification) ;
+Explorer les tendances démographiques, salariales et professionnelles.
+En résumé : expliquer et prédire le turnover des employés.
+
+# 4- Description des variables : 
+Le dataset contient 9 variables, réparties en variables qualitatives, quantitatives et une variable cible.
+
+# Variables qualitatives : 
+Education : niveau d’études (Bachelors, Masters, PHD).
+City : ville d’affectation (Bangalore, Pune, New Delhi).
+Gender : genre de l’employé (Male, Female).
+EverBenched : indique si l’employé a déjà été temporairement sans mission (Yes/No).
+
+# Variables quantitatives : 
+JoiningYear : année d’entrée dans l’entreprise.
+PaymentTier : niveau de rémunération (1 = faible, 3 = élevé).
+Age : âge de l’employé.
+ExperienceInCurrentDomain : années d’expérience dans le domaine actuel.
+
+# Variable cible : 
+LeaveOrNot : indique si l’employé a quitté l’entreprise (1) ou non (0).
+# II- Traitement des données :
 ## Analyse Préliminaire
 ```{r}
 data_project=read.csv("Employee.csv")
