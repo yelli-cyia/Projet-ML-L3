@@ -507,7 +507,7 @@ target = as.factor(target)
 ```
 
 
-Pour la méthode des arbres de décision, nous avons déjà transofrmé la variable `Education` afin de pouvoir la traiter comme une variable expliquative numérique dans la méthode des KNN. Nous l'avons stocké dans le data frame nommé `qualitative_vars_encoded`. Nous avons également transformé Gender et EverBenched en dummy variable, celle-ci sont stockées dans le data frame nommé `qualitative_vars_dummy`
+Pour la méthode des arbres de décision, nous avons déjà transformé la variable `Education` afin de pouvoir la traiter comme une variable expliquative numérique dans la méthode des KNN. Nous l'avons stocké dans le data frame nommé `qualitative_vars_encoded`. Nous avons également transformé Gender et EverBenched en dummy variable, celle-ci sont stockées dans le data frame nommé `qualitative_vars_dummy`
 ```{r}
 predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_vars$JoiningYear, PaymentTier=quantitatives_vars$PaymentTier,Experience = quantitatives_vars$Experience,qualitatives_vars_dummy,qualitative_vars_encoded)
 
@@ -582,4 +582,148 @@ On peut tracer les différentes métriques en fonction des valeurs de K étudié
 plot(KGrid, accuracy_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
 plot(KGrid, recall_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Recall")
 plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
+```
+Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur 5 semble intéressante et offre le meilleur compromis entre les trois, nous permettant ainsi de quasiment maximiser la précision tout en ayant des valeurs pas trop faible pour l'accuracy et le recall.
+
+#Performance du classifieur final
+
+On pourrait enfin évaluer les performances du classifieur final obtenu pour K = 5 voisins sur la partie Test. 
+
+Nous avons donc choisi la valeur de k, nous pouvons maintenant recombier les parties Train et Validation pour faire l'apprentissage sur un jeu de donnée encore plus gros.
+
+```{r, results = "hide"}
+rbind(predictive_vars_train, predictive_vars_validation)
+c(target_train, target_validation)
+```
+
+
+```{r, results = "hide"}
+target_pred = knn(
+  train = rbind(predictive_vars_train, predictive_vars_validation),
+  test  = predictive_vars_test,
+  cl    = c(target_train, target_validation),
+  k     = 16
+)
+
+accuracy_test = mean(target_pred == target_test)
+
+recall_test = recall(
+  data = target_pred, 
+  reference = target_test, 
+  relevant = "Rester"
+)
+
+precision_test = precision(
+  data = target_pred, 
+  reference = target_test, 
+  relevant = "Rester"
+)
+
+
+confusionMatrix(target_pred, target_test)$table
+
+accuracy_test
+recall_test
+```
+
+
+
+
+
+
+```{r}
+set.seed(1234)
+inTest                  = sample(1:n, size = round(0.1 * n), replace = FALSE)
+predictive_vars_test    = predictive_vars[inTest,]
+target_test             = target[inTest]
+predictive_vars_remain  = predictive_vars[-inTest,] # ce qu'on partagera en Train 
+# et Validation à chaque CV itération, partie utilisée pour validation
+target_remain           = target[-inTest]
+
+n_remain    = nrow(predictive_vars_remain)
+nfolds      = 10
+KGrid       = 1:20 #valeur de K qu'on veut étudier
+  
+folds   = NULL
+for(i in 1:n_remain){
+  #seulement les individus restants (partie remain) sont mit dans les 10 folds
+  folds = c(folds, sample(1:nfolds, 1, replace = FALSE))
+}
+
+accuracy_fold   = NULL
+recall_fold     = NULL
+precision_fold  = NULL
+for(k in 1:nfolds){ # pour faire les itérations de la CV
+  inFold                      = which(folds == k)
+  predictive_vars_train       = predictive_vars_remain[-inFold,]  # pour entrainer le modèle
+  predictive_vars_validation  = predictive_vars_remain[inFold,]   # pour évaluer le modèle
+  #on a réparti individu dans train et validation, mtn on fait normalisation
+  target_train                = target_remain[-inFold]
+  target_validation           = target_remain[inFold]
+    
+ 
+  accuracy_K  = NULL
+  recall_K    = NULL
+  precision_K = NULL
+  for(K in KGrid){ # pour chaque valeur de K dans KGrid on a fait "l'apprentissage" du 
+    # classifieur, puis on prédit la réponse des individidus dans la partie Validation, 
+    # et enfin on compare les prédictions aux vraies valeurs de la réponse
+    #exactement ce que nous avons fait précedemment dans du hold-Out
+    target_pred = knn(train = predictive_vars_train, 
+                      test = predictive_vars_validation, 
+                      cl = target_train, k = K) 
+      
+    accuracy_K      = c(accuracy_K, mean(target_pred == target_validation))
+    recall_K        = c(recall_K, recall(data = target_pred, 
+                                         reference = target_validation, 
+                                         relevant = "Rester"))
+    precision_K     = c(precision_K, precision(target_pred, 
+                                               reference = target_validation, 
+                                               relevant = "Rester"))
+    }
+    
+    accuracy_fold = rbind(accuracy_fold, accuracy_K)
+    recall_fold = rbind(recall_fold, recall_K)
+    precision_fold = rbind(precision_fold, precision_K)
+  }
+rownames(accuracy_fold) = paste0("fold_",1:nfolds)
+rownames(recall_fold) = paste0("fold_",1:nfolds)
+rownames(precision_fold) = paste0("fold_",1:nfolds)
+  
+colnames(accuracy_fold) = paste0("K_", KGrid)
+colnames(recall_fold) = paste0("K_", KGrid)
+colnames(precision_fold) = paste0("K_", KGrid)
+```
+
+
+
+```{r}
+colMeans(accuracy_fold)
+colMeans(recall_fold)
+colMeans(precision_fold)
+```
+
+
+```{r, out.width = "50%", fig.align = "center"}
+plot(KGrid, colMeans(accuracy_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
+plot(KGrid, colMeans(recall_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Recall")
+plot(KGrid, colMeans(precision_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
+```
+
+
+
+```{r}
+
+target_pred = knn(train =predictive_vars_train, test = predictive_vars_test, 
+                  cl = target_train, k = 4) 
+  
+accuracy_test  = mean(target_pred == target_test)
+recall_test    = recall(data = target_pred, reference = target_test, 
+                           relevant = "Rester")
+precision_test = precision(data = target_pred, reference = target_test, 
+                              relevant = "Rester")
+
+accuracy_test
+recall_test 
+precision_test
 ```
