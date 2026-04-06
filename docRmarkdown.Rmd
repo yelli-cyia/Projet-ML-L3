@@ -124,7 +124,8 @@ library(ggplot2)
 quantitatives_vars = data.frame(
   Age = data_project$Age,
   Experience = data_project$ExperienceInCurrentDomain,
-  JoiningYear = data_project$JoiningYear
+  JoiningYear = data_project$JoiningYear,
+  PaymentTier = data_project$PaymentTier
 )
 
 # matrice de corrélation
@@ -205,7 +206,7 @@ partager le jeu de données en Train/Test, avec 80% des observations placées da
 ```{r}
 set.seed(1234) #fixe la graine
 #on va créer nos parties séparées
-n       = nrow(qualitatives_vars) 
+n = nrow(data_project) 
 inTrain = sample(1:n, size = round(0.8 * n), replace = FALSE)
 
 predictive_vars_test    = predictive_vars[-inTrain,]
@@ -298,6 +299,9 @@ A présent, on va regrouper les variables quantitatives et celles qui ont été 
 #                       Experience=quantitatives_vars$Experience,
  #                      Sex=quantitatives_vars$Age,
   #                     qualitative_vars_encoded,qualitatives_vars_dummy)
+
+predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_vars$JoiningYear, PaymentTier=quantitatives_vars$PaymentTier,Experience = quantitatives_vars$Experience,qualitatives_vars_dummy,qualitative_vars_encoded)
+
 ```
 #Classifieur : Arbre de décisions : 
 # II- Traitement des données : 
@@ -310,7 +314,7 @@ Avant de construire un classifieur (arbre de décision), il est nécessaire de :
 # 1- Chargement et préparation du jeu de données
 ```{r}
 library(readr)
-data =  read_csv("Employee (1).csv")
+data =  read_csv("Employee.csv")
 ```
 # Vérification de la structure
 Nous examinons la structure du dataset pour vérifier les types des variables et identifier d'éventuelles incohérences.
@@ -326,7 +330,7 @@ Ce code calcule le nombre de valeurs manquantes pour chaque variable du jeu de d
 ```{r}
 colSums(is.na(data))
 ```
-On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifie que nous n'avons pas besoin d'appliquer de méthodes d'imputataion.
+On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifie que nous n'avons pas besoin d'appliquer de méthodes d'imputation.
 
 # 3- Définition des variables qualitatives, quantitatives et de la cible
 ```{r}
@@ -461,8 +465,14 @@ Dans les deux cas (classe 0 et classe 1), le test du Chi‑deux renvoie un p‑v
 Cela signifie que nous rejetons l’hypothèse d’indépendance entre Education et City. Autrement dit, les deux variables qualitatives sont significativement dépendantes, même lorsqu’on conditionne par la classe LeaveOrNot. Cette dépendance forte viole directement l’hypothèse d’indépendance conditionnelle du classifieur naïf bayésien.
 
 # Étape 3 — Vérifier si les distributions conditionnelles se recouvrent
+
 # Les distributions sont-elles gaussiennes ?
-Les histogrammes montrent : Age → distribution asymétrique, pas normale, Experience → distribution très concentrée, pas normale, PaymentTier → distribution catégorielle déguisée en numérique, JoiningYear → distribution en “paliers”, pas normale. Donc l’hypothèse de normalité n’est pas respectée.
+Les histogrammes montrent : 
+- Age → distribution asymétrique, pas normale
+- Experience → distribution très concentrée, pas normale
+- PaymentTier → distribution catégorielle déguisée en numérique
+- JoiningYear → distribution en “paliers”, pas normale. 
+Donc l’hypothèse de normalité n’est pas respectée.
 # Les distributions sont-elles différentes entre les classes ?
 Regardons les boxplots :
 Age : les distributions se recouvrent presque totalement
@@ -475,7 +485,101 @@ Variable discriminante.
 Conclusion : seule JoiningYear aide vraiment Naive Bayes.
 Ce n’est pas éliminatoire, mais c’est un point contre Naive Bayes.
 
+
+
 # Conclusion : 
  L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien.
 De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre dataset, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
 
+#Classifieur : KNN :
+
+Nous verifions que toutes les variables sont bien du bon data type
+
+```{r}
+qualitatives_vars$Education = as.factor(qualitatives_vars$Education)
+qualitatives_vars$City = as.factor(qualitatives_vars$City)
+qualitatives_vars$PaymentTier = as.factor(qualitatives_vars$PaymentTier)
+qualitatives_vars$Gender = as.factor(qualitatives_vars$Gender)
+qualitatives_vars$EverBenched = as.factor(qualitatives_vars$EverBenched)
+	
+
+target = as.factor(target)
+```
+
+
+Pour la méthode des arbres de décision, nous avons déjà transofrmé la variable `Education` afin de pouvoir la traiter comme une variable expliquative numérique dans la méthode des KNN. Nous l'avons stocké dans le data frame nommé `qualitative_vars_encoded`. Nous avons également transformé Gender et EverBenched en dummy variable, celle-ci sont stockées dans le data frame nommé `qualitative_vars_dummy`
+```{r}
+predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_vars$JoiningYear, PaymentTier=quantitatives_vars$PaymentTier,Experience = quantitatives_vars$Experience,qualitatives_vars_dummy,qualitative_vars_encoded)
+
+```
+
+On vérifie que les variables de `predictive_vars` sont bien de type `num` ou `int`
+```{r}
+# Vérifier le type de chaque colonne
+sapply(predictive_vars, class)
+```
+#Répartition en train/test
+```{r}
+inTest = sample(1:n, size = round(0.2 * n), replace = FALSE)
+
+predictive_vars_test    = predictive_vars[inTest,]
+target_test             = target[inTest]
+predictive_vars_train   = predictive_vars[-inTest,]
+target_train            = target[-inTest]
+```
+on fixe la graine dans un premier temps. On répartir de manière aléatoire 10% pour le Test, 10% pour la validation. Le reste sera donc dans le Train. On aura en tout 20% dans les valeurs affichées à la fin de ce code.
+```{r, results = "hide"}
+set.seed(1234)
+inTest        = sample(1:n, size = round(0.1 * n), replace = FALSE)
+notinTest     = (1:n)[-inTest]
+inValidation  = sample(notinTest, size = round(0.1 * n), replace = FALSE)
+
+c(inTest, inValidation)
+```
+On réparti ensuite le spli en 81/10/10 :
+```{r}
+predictive_vars_test        = predictive_vars[inTest,]
+target_test                 = target [inTest]
+predictive_vars_validation  = predictive_vars[inValidation,]
+target_validation           = target[inValidation]
+predictive_vars_train       = predictive_vars[-c(inTest,inValidation),]
+target_train                = target[-c(inTest,inValidation)]
+```
+Notons que nous n'avons pas de variables manquantes (comme vu dans la partie précédente) ; il est donc inutilie de faire de l'imputation de variables manquantes.
+
+Installons le package `class`, qui contient la méthode KNN.
+
+```{r, eval = FALSE}
+install.packages("class")
+```
+On charge le package class utile à la méthode des K plus proches voisins ainsi que caret, qui nous servira à calculer le recall, l'accuracy et la precision
+```{r, results = "hide", message = FALSE}
+library(class)
+library(caret)
+```
+Faisons "l'apprentissage" de la méthode des K plus proches voisins sur la partie Train, puis utilisons la partie Validation pour calculer l'accuracy, le recall, et la précision
+```{r}
+
+KGrid = 1:20
+accuracy_val  = NULL
+recall_val    = NULL
+precision_val = NULL
+for(K in KGrid){ #pour chaque valeur de K dans KGrid on a fait l'apprentissage du classifieur puis on prédit la réponse des individus dans la partie VAldidation
+  #et enfin on compare les prédictions aux vraies valeurs de la réponse
+  
+  target_pred = knn(train = predictive_vars_train, test = predictive_vars_test, cl = target_train, k = K)
+  accuracy_val = c(accuracy_val, mean(target_pred == target_validation))
+  recall_val = c(recall_val, recall(data = target_pred, reference = target_validation, relevant = "Rester"))
+  precision_val = c(precision_val,precision(data = target_pred, reference = target_validation, relevant = "Rester"))
+  
+}
+```
+
+
+On peut tracer les différentes métriques en fonction des valeurs de K étudiées
+
+```{r, out.width = "50%", fig.align = "center"}
+plot(KGrid, accuracy_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
+plot(KGrid, recall_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Recall")
+plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
+```
