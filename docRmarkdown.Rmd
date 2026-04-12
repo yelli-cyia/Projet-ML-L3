@@ -369,6 +369,20 @@ precision(data = target_pred, reference = target_test, relevant = "Rester")
 
 confusionMatrix(data = target_pred, reference = target_test)$table
 ```
+```{r}
+# Voici la deuxième version plus smple de ce que j'ai fait : 
+library(caret)
+cm <- confusionMatrix(target_pred, target_test)
+
+accuracy  <- cm$overall["Accuracy"]
+recall    <- cm$byClass["Recall"]      
+precision <- cm$byClass["Precision"]   
+
+accuracy
+recall
+precision
+```
+Le modèle atteint une accuracy de 81,85 %, ce qui traduit une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. Le recall de 0,927 montre qu’il identifie très bien les employés qui restent, tandis que la precision de 0,822 indique qu’environ 82 % des prédictions “Rester” sont correctes. Ces résultats révèlent un modèle performant mais légèrement biaisé vers la classe Rester, ce qui s’explique par le déséquilibre du dataset, où la majorité des employés ne quittent pas l’entreprise.
 
 Dire ce que ça fait ici
 ## 4.6 - Élagage de l’arbre (Cost‑Complexity Pruning)
