@@ -768,7 +768,6 @@ mean(c(accuracy_test, recall_test, precision_test))
 De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision toutes supérieur à 80%. La moyenne de l'accuracy, du recall et de la precision est légèrement plus haute avec la cross-validation.
 
 ## 6.4 - Analyse des résultats obtenus
-
 Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations.On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, la proportion de vrais positifs ayant été correctement classifié est particulièrement  élevée.
 
 #7 - Conclusion
@@ -776,7 +775,7 @@ Ce projet nous a permis de mener une démarche complète d’apprentissage super
 
 #8 - Répartition des taches
 Dans ce projet, Paulina a réalisé l’analyse préliminaire, incluant la présentation générale du dataset, les commentaires univariés et l’ensemble du travail lié au premier classifieur (arbre de décision), de son implémentation à sa justification. Adélie a contribué à l’analyse multivariée, à certaines étapes de la méthode des K plus proches voisins et à la mise en forme des titres. Yelli a participé à l’analyse univariée, à plusieurs étapes du KNN et à la mise en forme générale du rapport. Chaque membre a également ajusté ou amélioré le travail des autres, ce qui a permis d’obtenir un rendu final cohérent.
-#9 - Utilisation d'IA.
 
+#9 - Utilisation d'IA.
 L'IA n'a pas été utilisée pour fournir un code mais simplement pour corriger certaines syntaxes ou incohérences lorsqu'une erreur était déclenchée par le code et que nous ne parvenions pas à la régler de nous même. Le code en lui-même, ainsi que les commentaires, a été entièrement réalisé par nos soins.
 
