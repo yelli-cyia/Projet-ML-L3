@@ -28,26 +28,26 @@ Le jeu de données utilisé dans ce projet est disponible à l’adresse suivant
 <https://www.kaggle.com/datasets/tawfikelmetwally/employee-dataset>
 
 
-## 1.4 - Description des variables :
+# 1 - Description des variables :
 
 Le dataset contient 9 variables, réparties en variables qualitatives, quantitatives et une variable cible.
 
-### 1.4.1 - Variables qualitatives :
+## 1.1 - Variables qualitatives :
 
 Education : niveau d’études (Bachelors, Masters, PHD). City : ville d’affectation (Bangalore, Pune, New Delhi). Gender : genre de l’employé (Male, Female). EverBenched : indique si l’employé a déjà été temporairement sans mission (Yes/No).
 
-### 1.4.2 - Variables quantitatives :
+## 1.2 - Variables quantitatives :
 
 JoiningYear : année d’entrée dans l’entreprise. PaymentTier : niveau de rémunération (1 = faible, 3 = élevé). Age : âge de l’employé. ExperienceInCurrentDomain : années d’expérience dans le domaine actuel.
 
-### 1.4.3 - Variable cible
+## 1.3 - Variable cible
 
 La variable cible est la variable que l’on cherche à prédire.
 - `LeaveOrNot` :
   - `0` : l’employé reste dans l’entreprise
   - `1` : l’employé quitte l’entreprise
 
-# Chargement et découverte des données
+## 1.5 - Chargement et découverte des données
 
 Dans un premier temps, nous importons la base de données puis nous observons sa structure générale.
 
@@ -63,7 +63,7 @@ colnames(data_project) #nom des colonnes
 head(data_project)
 ```
 
-## 1.5 - Analyse des variables (début de l'analyse univariées)
+# 2 - Analyse des variables (début de l'analyse univariées)
 
 Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise. Nous allons donc travailler avec la variable LeaveOrNot qui est une variable binaire 0 si l'employé reste et 1 si l'employé part
 
@@ -75,7 +75,7 @@ summary(data_project$LeaveOrNot)
 
 Au vu de nos données, nous considérons que toutes les variables sont toutes utiles pour notre étude, nous n'allons donc pas supprimer ou fusionner des variables de notre jeu de données.
 
-### 1.5.1 - Transformation des variables pour notre étude
+## 2.1 - Transformation des variables pour notre étude
 
 Pour la variable Education, il faut faire un label encoding
 
@@ -86,7 +86,7 @@ Pour la variable Education, il faut faire un label encoding
                           #           levels = c("Bachelors", "Masters", "PHD")))
 ```
 
-### 1.5.2 - Répartition
+## 2.2 - Répartition
 
 ```{r}
 quantitatives_vars= data.frame(JoiningYear= data_project$JoiningYear , 
@@ -100,7 +100,7 @@ qualitatives_vars= data.frame(Education=data_project$Education,
                               Benched=data_project$EverBenched)
 ```
 
-### 1.5.3 - Les Variables quantitatives
+## 2.3 - Les Variables quantitatives
 
 ```{r, out.width = "50%", fig.align = "center"}
 for(i in 1:ncol(quantitatives_vars)){
@@ -110,7 +110,7 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 
-### 1.5.4 - Les Variables qualitatives
+## 2.4 - Les Variables qualitatives
 
 ```{r, out.width = "50%", fig.align = "center"}
 for(i in 1:ncol(qualitatives_vars)){
@@ -120,11 +120,11 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 
-##1.6 - Analyse multivariée 
+#3 - Analyse multivariée 
 
 Il est important d’étudier la relation entre les différentes variables explicatives car certaines peuvent parfois être redondantes. De plus, nous allons vérifier qu'il n'y est pas une forte colinéarité entre variables pouvant poser problème en rendant les modèles moins fiables ou plus difficiles à interpréter.
 
-### 1.6.1 - Matrice corrélation
+## 3.1 - Matrice corrélation
 
 Dans un premier temps, on calcule la corrélation de chacune des paires de variables quantitatives puis on représente graphiquement leurs valeurs.
 
@@ -153,7 +153,7 @@ ggplot(data = melted_cor_mat, aes(x = Var1, y = Var2, fill = value)) +
 
 On ne remarque aucune forte corrélation entre les variables quantitatives (inférieur à 0.1 pour toutes), celle-ci étant légèrement plus haute entre l'âge et l'expérience, mais restant tout de même assez faible, ce qui est bon signe.
 
-### 1.6.2 Variables quantitatives et target
+## 3.2 Variables quantitatives et target
 
 On représente graphiquement la relation entre chacune des variables quantitatives incluses dans `quantitative_vars` et la target
 
@@ -172,7 +172,7 @@ for(i in 1:ncol(quantitatives_vars)){
 On remarque que l'âge, l'expérience et l'année ou l'employée rejoins l'entreprise ne semble pas avoir d'impacte car ils ont des distributions très similaires.
 Cependant, le niveau de paiement de l'employée a un fort impacte : la plupart des employés restant dans l'entreprise, voir quasiment tous, sont de la catégorie 3.
 
-### 1.6.3 - Variables qualitatives et target
+## 3.3 - Variables qualitatives et target
 
 Observons maintenant le nombre d'individu dans chacune de nos différentes catégorie dans `qualitative_vars` :
 ```{r}
@@ -215,21 +215,21 @@ for(i in 1:ncol(qualitatives_vars)){
   )
 }
 ```
-On observe des proportions d'individus différentes pour chacune des variables. Cependant, les différences sont bien présentes mais ne semblement pas flagrante.
+On observe des proportions d'individus différentes pour chacune des variables. Cependant, les différences sont bien présentes mais ne semblent pas flagrante.
 
 PREMIERE PARTIE QUI EST GOOD !!!!!!!!!
-# Fin de l'analyse multivariée
 
-#Classifieur : Arbre de décisions : \# II- Traitement des données : Avant de construire un classifieur (arbre de décision), il est nécessaire de :
+# 4 - Classifieur 1: Arbre de décisions : 
+
+Avant de construire un classifieur (arbre de décision), il est nécessaire de :
 
 -   identifier les variables contenant des valeurs manquantes ;
 -   analyser quelles variables semblent les plus pertinentes pour prédire la variable cible ;
 -   préparer les données pour éviter tout data leakage ;
--   constituer un jeu d’apprentissage et un jeu de test. \# 1- Chargement et préparation du jeu de données
+-   constituer un jeu d’apprentissage et un jeu de test.
 
 
-
-# 2- Identification des valeurs manquantes
+## 4.1 - Identification des valeurs manquantes
 
 Ce code calcule le nombre de valeurs manquantes pour chaque variable du jeu de données.
 
@@ -240,7 +240,8 @@ colSums(is.na(data_project))
 On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifie que nous n'avons pas besoin d'appliquer de méthodes d'imputation.
 
 
-#Création du dataframe contenant uniquement les variables utiles : Nous construisons un nouveau dataframe contenant uniquement les variables nécessaires à la prédiction, afin d'éviter d'inclure des colonnes inutiles.
+## 4.2 - Création du dataframe contenant uniquement les variables utiles
+Nous construisons un nouveau dataframe contenant uniquement les variables nécessaires à la prédiction, afin d'éviter d'inclure des colonnes inutiles.
 
 Créer un dataframe nommé `predictive_vars` contenant les variables qualitatives et quantitatives que l'on souhaite utiliser pour prédire la target :
 
@@ -257,11 +258,9 @@ predictive_vars = data.frame(Age = data_project$Age, Experience = data_project$E
 ```
 
 
-# 5- Constitution du jeu d’apprentissage et du jeu de test (Holdout 80/20)
+## 4.3 - Constitution du jeu d’apprentissage et du jeu de test (Holdout 80/20)
 
-partager le jeu de données en Train/Test, avec 80% des observations placées dans l’ensemble d’apprentissage
-
-# Split
+Nous partageons le jeu de données en Train/Test, avec 80% des observations placées dans l’ensemble d’apprentissage.
 
 Ce bloc de code réalise la séparation du jeu de données en deux parties : 80 % pour l’apprentissage (train), 20 % pour le test (test). La fonction set.seed(1234) garantit que la sélection aléatoire sera reproductible. Ensuite, sample() tire au hasard les indices correspondant aux observations du jeu d’apprentissage. Les variables explicatives (predictive_vars) et la variable cible (target_vector) sont ensuite découpées selon ces indices.
 ```{r}
@@ -279,7 +278,7 @@ target_train            = target[inTrain]
 
 Ce découpage permet d’entraîner les modèles sur un ensemble d’observations tout en conservant un jeu de test indépendant pour évaluer leur performance. La répartition 80/20 est un standard en machine learning et assure un bon compromis entre quantité de données pour l’apprentissage et fiabilité de l’évaluation.
 
-# 6- Visualisation de l’arbre
+## 4.4 - Visualisation de l’arbre
 
 Dans cette étape, nous entraînons un arbre de décision sur le jeu d'apprentissage. Le modèle utilise toutes les variables explicatives pour prédire la variable cibe LeaveOrNot. L'objectif est d'identifier les critères les plus discriminants permettant de séparer les employés qui restent de ceux qui quittent l'entreprise.
 
@@ -310,7 +309,7 @@ rpart.plot(x = classifTree, type = 3, extra = 2, fallen.leaves = TRUE,
 
 L’arbre montre que la variable la plus importante pour prédire le départ d’un employé est JoiningYear : les employés ayant rejoint l’entreprise à partir de 2018 sont majoritairement classés comme quittant l’entreprise. Pour les employés entrés avant 2018, la variable suivante la plus discriminante est PaymentTier:Les employés avec un PaymentTier = 3 (niveau de rémunération élevé) sont majoritairement classés comme restant. Les employés avec un PaymentTier \< 3 présentent davantage de départs, surtout lorsque l’année d’entrée est ancienne. L’arbre met également en évidence des effets secondaires : Education, Gender, Age et City interviennent dans les branches plus profondes, mais leur influence est moins forte. Certaines feuilles montrent une forte majorité de “0” (rester), ce qui indique un dataset déséquilibré où la majorité des employés ne quittent pas l’entreprise. Globalement, l’arbre révèle que l’année d’entrée et le niveau de rémunération sont les facteurs les plus déterminants dans la prédiction du turnover.
 
-# 7- Prédiction sur le jeu de test
+## 4.5 - Prédiction sur le jeu de test
 
 Dans cette étape, nous utilisons l’arbre de décision entraîné pour prédire la classe (LeaveOrNot) sur le jeu de test. Nous comparons ensuite les prédictions au vrai label grâce à une matrice de confusion, ce qui permet d’évaluer la performance du modèle sur des données jamais vues.
 
@@ -334,7 +333,7 @@ confusionMatrix(data = target_pred, reference = target_test)$table
 ```
 
 Dire ce que ça fait ici
-# 8- Élagage de l’arbre (Cost‑Complexity Pruning)
+## 4.6 - Élagage de l’arbre (Cost‑Complexity Pruning)
 
 Ce bloc de code réalise l’élagage de l’arbre de décision à l’aide du Cost-Complexity Pruning. L’objectif est d’identifier la valeur optimale du paramètre de complexité (cp) qui minimise l’erreur de validation croisée (xerror), puis de reconstruire un arbre plus simple et plus généraliste. Cela permet de réduire le surapprentissage et d’obtenir un modèle plus interprétable.
 ```{r}
@@ -370,25 +369,25 @@ rpart.plot(prunedTree, type = 3, extra = 2, fallen.leaves = TRUE, main = "Arbre 
 ```
 
 
-# Interprétation du résultat du code (table CP + choix du bestcp)
+## 4.7 - Interprétation du résultat du code (table CP + choix du bestcp)
 
 La table cptable affiche, pour chaque niveau de complexité, l’erreur relative et l’erreur de validation croisée. Le meilleur cp correspond à la ligne où xerror est minimal. Dans notre cas, ce cp optimal est celui utilisé pour élaguer l’arbre. Cela signifie que l’arbre final est celui qui offre le meilleur compromis entre simplicité et performance prédictive.
 
-# Interprétation de l’arbre élagué
+## 4.8 - Interprétation de l’arbre élagué
 
 L’arbre élagué conserve la même structure logique que l’arbre initial, mais avec moins de branches. Les variables les plus importantes restent les mêmes : JoiningYear (variable la plus discriminante), PaymentTier,puis, plus loin dans l’arbre : Education, Gender, Age, City. L’élagage supprime les divisions les moins utiles, c’est‑à‑dire celles qui n’améliorent pas significativement la performance. Le résultat est un arbre plus court, plus lisible, qui généralise mieux et limite le risque de surapprentissage.
 
-# En quoi cet arbre diffère du premier ?
+## 4.9 - En quoi cet arbre diffère du premier ?
 
 Différences entre l’arbre initial et l’arbre élagué : L’arbre élagué contient moins de nœuds et moins de niveaux. Certaines branches profondes du premier arbre ont été supprimées car elles n’apportaient pas d’amélioration significative. Les règles principales (JoiningYear, PaymentTier) restent identiques, ce qui montre que l’élagage n’a pas modifié la logique globale du modèle. L’arbre élagué est plus simple à interpréter, plus stable et moins sensible au bruit. En résumé : l’arbre élagué est une version “nettoyée” du premier arbre, plus robuste et plus lisible, tout en conservant les décisions essentielles.
 
-# Choix des deux classifieur :
+#5 - Choix des deux classifieur :
 
-# Pourquoi on a choisit l'Arbre de décision comme classifieur :
+## 5.1 - Pourquoi on a choisit l'Arbre de décision comme classifieur :
 
 Nous avons choisi l’arbre de décision comme premier classifieur car il ne repose sur aucune hypothèse forte concernant la distribution des variables ou leur indépendance, ce qui le rend particulièrement adapté à notre jeu de données où les variables explicatives présentent des dépendances et des distributions non gaussiennes. Il accepte naturellement les variables qualitatives et quantitatives, capture automatiquement les interactions entre prédicteurs et fournit un modèle très lisible. La visualisation de l’arbre met immédiatement en évidence les variables les plus discriminantes (notamment JoiningYear puis PaymentTier) ainsi que les règles de décision utilisées pour distinguer les employés qui restent de ceux qui partent, sous forme de segments simples et explicites. Cette interprétabilité, combinée à sa robustesse face à des données hétérogènes et complexes, ainsi qu’à la possibilité d’élaguer l’arbre pour éviter le surapprentissage, fait de l’arbre de décision un choix cohérent et pertinent pour notre première approche de classification.
 
-# Classifieur 2 :
+## 5.2 - Classifieur 2 :
 
 Pour sélectionner notre second classifieur, nous hésitions entre la méthode des K plus proches voisins et le classifieur Naïve Bayes. Comme l’hypothèse fondamentale de Naïve Bayes repose sur l’indépendance conditionnelle des variables explicatives sachant la classe, nous avons cherché à vérifier si cette hypothèse était raisonnablement respectée dans notre jeu de données. L’objectif était de déterminer si les variables explicatives sont effectivement indépendantes les unes des autres conditionnellement à LeaveOrNot, afin d’orienter et de justifier notre choix de classifieur. \# Étape 1 — Vérifier les corrélations entre variables quantitatives, séparément pour chaque classe : Nous calculons ici les matrices de corrélation entre les variables quantitatives, séparément pour chaque classe de la variable cible (LeaveOrNot = 0 et LeaveOrNot = 1). L’objectif est de vérifier si les variables explicatives sont indépendantes conditionnellement à la classe, ce qui est l’hypothèse centrale du classifieur naïf bayésien.
 
@@ -403,22 +402,23 @@ Les corrélations obtenues sont toutes très faibles, généralement comprises e
 
  !!!! je doute avoir vu ça en cours...
  
-# Étape 3 — Vérifier si les distributions conditionnelles se recouvrent
+## 5.3 - Vérifier si les distributions conditionnelles se recouvrent
 
-# Les distributions sont-elles gaussiennes ?
+Les distributions sont-elles gaussiennes ?
 
 Les histogrammes montrent : - Age → distribution asymétrique, pas normale - Experience → distribution très concentrée, pas normale - PaymentTier → distribution catégorielle déguisée en numérique - JoiningYear → distribution en “paliers”, pas normale. Donc l’hypothèse de normalité n’est pas respectée. \# Les distributions sont-elles différentes entre les classes ? Regardons les boxplots : Age : les distributions se recouvrent presque totalement Naive Bayes aura du mal à séparer les classes. Experience : même chose, distributions très proches Peu discriminant. JoiningYear : là, il y a une vraie différence Les employés qui partent ont rejoint plus récemment. Variable discriminante. Conclusion : seule JoiningYear aide vraiment Naive Bayes. Ce n’est pas éliminatoire, mais c’est un point contre Naive Bayes.
 
-# Conclusion :
+## 5.4 -  Conclusion :
 
 L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien. De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre dataset, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
   
       !!!!! PAUSE, J'AI TOUT CA A REVOIR !!!!!
   
-#Classifieur : KNN :
+# 6 - Classifieur 2 : KNN :
 
 La méthode des K plus proches voisins est une méthode d’apprentissage supervisé qui prédit la catégorie d’appartenance d’une nouvelle observation en utilisant celles de K instances du jeu de données d’entraînement qui lui sont le plus similaires possible. Il faut pour cela trouver une valeur de k appropriée de manière à prédire le mieux possible la catégorie d'appartenance à un individu.
 
+## 6.1 - Codage binaire (dummy coding) et label encoding
 
 Nous verifions avant tout que toutes les variables sont bien du bon data type :
 
@@ -467,7 +467,10 @@ sapply(predictive_vars, class)
 ```
 On remarque que c'est bien le cas. Nous pouvons donc faire la méthode des KNN.
 
-#Répartition en train/test/validatoin
+## 6.2 - Méthode des K plus proches voisins avec partage du jeu de données en Holdout
+
+### 6.2.1 - Répartition du jeu de données
+
 Nous répartissons nos variables dans un train/test. Notons qu'il n'y a pas de risque de data leakage de répartir les données après la transformation des variables quantitative, car pour les différentes variables obtenues nous avons utliser les data_type, nous n'avons pas utiliser d'information provenant des autres individus, c'est simplement comme si on avait ré-organisé les données. On recode juste les différentes catégories avec des variables numériques ou binaires. Par contre, la normalisation de nos données doit se faire après la répartition en train/test/validation.
 
 ```{r}
@@ -500,6 +503,8 @@ predictive_vars_train       = predictive_vars[-c(inTest,inValidation),]
 target_train                = target[-c(inTest,inValidation)]
 ```
 
+### 6.2.2 - Normalisation des variables
+
 Notons que nous n'avons pas de variables manquantes (comme vu dans la partie précédente) ; il est donc inutile de faire de l'imputation de variables manquantes.
 Nous allons standardiser nos variables en faisant de la normalisation Min-Max. Pour nos variables `Gender` et `Benched` qui sont comprises déjà entre 0 et 1, la standardisation n'est donc pas nécessaire.
 Avec la méthode range, la normalisation ne se fait que sur les variables en dehors de [0,1] de `predictive_vars_train`, excluant automatiquement nos deux variables binaires.
@@ -516,6 +521,7 @@ predictive_vars_test = predict(Proc, predictive_vars_test)
 
 ```
 
+### 6.2.3 - Sélection de l'hyperparamètre
 Installons le package `class`, qui contient la méthode KNN.
 
 ```{r, eval = FALSE}
@@ -558,7 +564,7 @@ plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Pr
 
 Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur k = 10 semble intéressante et offre un bon équilibre entre les trois métriques, nous permettant ainsi de maximiser l'accuracy tout en ayant des valeurs quasiment maximales pour le recall et la precision.
 
-#Performance du classifieur final
+### 6.2.1 - Performance du classifieur final
 
 On pourrait enfin évaluer les performances du classifieur final obtenu pour K = 10 voisins sur la partie Test.
 
@@ -607,9 +613,12 @@ mean(c(accuracy_test, recall_test, precision_test))
 
 Nous avons plus de 80% de prédictions correctes pour chacunes de nos trois métriques. La moyenne de l'accuracy, du recall et de la precision est de 0.841.
 
-Cette partie à revoir !!!!
 
-## 3. Méthode des K plus proches voisins avec cross-validation pour sélectionner le nombre de voisins
+
+## 6.3 - Méthode des K plus proches voisins avec cross-validation
+
+### 6.3.1 - Répartition du jeu de données et normalisation
+
 Comme avant, on met une partie test de coté pour pouvoir évaluer les performances du classifieur final. La différence c'est qu'on voudrait séparer du reste du jeu de données en différentes 10 portions différentes et les utiliser de manière répétée comme Train et Validation. La meilleure valeur de k va donc être choisie en utilisant la moyenne de chacuns des 10 classifieurs.
 Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
 
@@ -707,6 +716,7 @@ colnames(recall_fold) = paste0("K_", KGrid)
 colnames(precision_fold) = paste0("K_", KGrid)
 ```
 
+### 6.3.2 - Sélection de l'hyperparamètre
 
 Nous allons maintenant séléctionner l'hyperparamètre k.Nous utilisons la méthode `colMeans` qui calcule la moyenne de chaque colonne d’un tableau. Nous avons donc la moyenne de l’accuracy, du recall et de la precision pour chaque K sur les 10 folds.
 
@@ -722,6 +732,8 @@ plot(KGrid, colMeans(recall_fold), type = 'l', xlab = "K, nombre de voisins", yl
 plot(KGrid, colMeans(precision_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
 ```
 La valeur k = 11 offre un bon compromis pour l'accuracy et le recall, mais une precision plus faible. La precision et le recall évoluant dans des sens opposés, il est dur de maximiser les deux.
+
+### 6.4.3 - Performance du classifieur final
 
 De nouveau, on peut enfin évaluer les performances du classifieur final obtenu pour K = 11 voisins sur la partie Test. On peut donc recombiner nos jeux de données pour évaluer sur un jeu de donnée encore plus conséquent. Il faut penser à faire la normalisation Min-Max. 
 ```{r}
@@ -766,4 +778,8 @@ mean(c(accuracy_test, recall_test, precision_test))
 ```
 De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision toutes supérieur à 80%. La moyenne de l'accuracy, du recall et de la precision est légèrement plus haute avec la cross-validation.
 
-###Conclusion
+## 6.4 - Analyse des résultats obtenus
+
+Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations.
+
+#7 - Conclusion
