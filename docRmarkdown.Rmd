@@ -139,6 +139,7 @@ for(i in 1:ncol(quantitatives_vars)){
 
 Les histogrammes permettent d’observer la répartition générale des variables quantitatives du jeu de données. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
 
+
 ### 2.3.2 - Les Variables qualitatives
 
 ```{r, fig.show='hold', out.width='50%'}
@@ -730,20 +731,14 @@ mean(c(accuracy_test, recall_test, precision_test))
 De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision toutes supérieur à 80%. La moyenne de l'accuracy, du recall et de la precision est légèrement plus haute avec la cross-validation.
 
 ## 6.4 - Analyse des résultats obtenus
-
 Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations.On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, la proportion de vrais positifs ayant été correctement classifié est particulièrement  élevée.
 
 #7 - Conclusion
+Ce projet nous a permis de mener une démarche complète d’apprentissage supervisé pour prédire le turnover des employés. L’analyse préliminaire a révélé un dataset déséquilibré et mis en évidence deux variables particulièrement déterminantes : l’année d’entrée et le niveau de rémunération. Les analyses univariée et multivariée ont confirmé l’absence de corrélations fortes entre les variables quantitatives et permis d’identifier les facteurs les plus pertinents. Deux classifieurs ont ensuite été construits : un arbre de décision, performant et facilement interprétable, puis un KNN, choisi après avoir écarté Naive Bayes dont les hypothèses ne correspondaient pas aux données. L’arbre a montré de très bons résultats pour prédire les employés qui restent, tandis que le KNN a apporté une approche complémentaire fondée sur la similarité entre individus. Au final, ce travail nous a permis de comprendre les mécanismes du départ des employés et de comparer deux méthodes de classification adaptées à notre objectif de prédiction.  
 
-#8 - Répartition des taches
+#8 - Contributions de chacun au projet 
+Dans ce projet, Paulina a réalisé l’analyse préliminaire, incluant la présentation générale du dataset, les commentaires univariés et l’ensemble du travail lié au premier classifieur (arbre de décision), de son implémentation à sa justification et la conclusion finale du projet. Adélie a contribué à l’analyse multivariée, à certaines étapes de la méthode des K plus proches voisins et à la mise en forme des titres. Yelli a participé à l’analyse univariée, à plusieurs étapes du KNN et à la mise en forme générale du rapport. Chaque membre a également ajusté ou amélioré le travail des autres, ce qui a permis d’obtenir un rendu final cohérent.
 
-Yelli :
-
-Paulina :
-
-Adélie : Analyse multivariée, certaines parties de la méthode des K plus proches voisins et mise en forme pour les titres.
-
-#9 - Utilisation d'IA.
-
+#9 - Utilisation d'IA 
 L'IA n'a pas été utilisée pour fournir un code mais simplement pour corriger certaines syntaxes ou incohérences lorsqu'une erreur était déclenchée par le code et que nous ne parvenions pas à la régler de nous même. Le code en lui-même, ainsi que les commentaires, a été entièrement réalisé par nos soins.
 
