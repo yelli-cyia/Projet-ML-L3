@@ -1,7 +1,6 @@
 ---
-title: "projet_ML"
-author: "Adélie, Yelli, Paulina"
-date: "2026-03-10"
+title: "**PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2**"
+author: "Réalisé par Adélie Bardagi, Yelli Coulibaly et Paulina Kinkolo"
 output: pdf_document
 header-includes:
 - \usepackage{fancyhdr}
@@ -9,8 +8,6 @@ header-includes:
 - \fancyhead[RO]{Adélie, Yelli, Paulina}
 - "\\fancyhead[LO]{Projet du cours de Compléments de Mathématiques 2 2025-2026}"
 ---
-
-# PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2
 
 # Introduction
 
