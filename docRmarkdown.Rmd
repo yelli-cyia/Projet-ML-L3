@@ -13,7 +13,7 @@ header-includes:
 
 ## Contexte
 
-Dans ce projet, nous travaillons sur un jeu de données regroupant des informations détaillées sur les employés d’une entreprise, incluant leurs caractéristiques démographiques (âge, genre, ville), leur parcours académique (niveau d’études), leur historique professionnel (année d’entrée, expérience dans le domaine), ainsi que des éléments liés à leur situation de travail (niveau de rémunération, périodes éventuelles de “bench”). Les données ont été anonymisées afin de préserver la confidentialité tout en permettant une analyse approfondie des dynamiques internes de la main-d’œuvre. Ce type de dataset est couramment utilisé dans les études de ressources humaines, notamment pour analyser les facteurs associés au turnover, à la rétention, à la diversité ou encore à la structure salariale.
+Dans ce projet, nous travaillons sur un jeu de données regroupant des informations détaillées sur les employés d’une entreprise, incluant leurs caractéristiques démographiques (âge, genre, ville), leur parcours académique (niveau d’études), leur historique professionnel (année d’entrée, expérience dans le domaine), ainsi que des éléments liés à leur situation de travail (niveau de rémunération, périodes éventuelles de “bench”). Les données ont été anonymisées afin de préserver la confidentialité tout en permettant une analyse approfondie des dynamiques internes de la main-d’œuvre. Ce type de jeu de données est couramment utilisé dans les études de ressources humaines, notamment pour analyser les facteurs associés au turnover, à la rétention, à la diversité ou encore à la structure salariale.
 
 L’idée générale est d’utiliser ces informations pour mieux comprendre le comportement des employés et plus précisément pour savoir **quels facteurs peuvent expliquer le départ d’un employé**.
 
@@ -37,7 +37,7 @@ Le jeu de données utilisé dans ce projet est disponible à l’adresse suivant
 
 # 1 - Description des variables :
 
-Le dataset contient 9 variables, réparties en variables qualitatives, quantitatives et une variable cible.
+Le jeu de données contient 9 variables, réparties en variables qualitatives, quantitatives et une variable cible.
 
 ## 1.1 - Variables qualitatives :
 
@@ -79,19 +79,21 @@ Déterminons le nombre de lignes et de colonnes de la base de données et un ape
 dim(data_project)      #dimension de la base de données
 head(data_project)
 ```
+Au vu de nos données, nous considérons que toutes les variables sont toutes utiles pour notre étude, nous n'allons donc pas supprimer ou fusionner des variables de notre jeu de données.
 
 # 2 - Analyse unavriée
 
-COMMENTAIRE... Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise. Nous allons donc travailler avec la variable LeaveOrNot qui est une variable binaire 0 si l'employé reste et 1 si l'employé part
+Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise. Nous allons donc travailler avec la variable `LeaveOrNot`.
 ```{r}
 target = factor(data_project$LeaveOrNot, labels = c ("Rester", "Partir"))
 data_project$LeaveOrNot = as.factor(data_project$LeaveOrNot)
 summary(data_project$LeaveOrNot)
 ```
-La variable LeaveOrNot est fortement déséquilibrée : 3053 employés restent dans l’entreprise contre 1600 qui partent. Cette répartition montre que la majorité des observations appartiennent à la classe Rester, ce qui devra être pris en compte lors de la modélisation. Au vu de nos données, nous considérons que toutes les variables sont toutes utiles pour notre étude, nous n'allons donc pas supprimer ou fusionner des variables de notre jeu de données.
+Cette dernière est fortement déséquilibrée : 3053 employés restent dans l’entreprise contre 1600 qui partent. Cette répartition montre que la majorité des observations appartiennent à la classe `Rester`, ce qui devra être pris en compte lors de la modélisation.
 
 ## 2.1 - Répartition
 
+Nous avons scindé le jeu de données en deux ensembles distincts afin d'adapter les futurs traitements statistiques : un premier groupe rassemblant les variables quantitatives et un second regroupant les variables qualitatives.
 ```{r}
 quantitatives_vars= data.frame(JoiningYear= data_project$JoiningYear , 
                                PaymentTier=data_project$PaymentTier,
@@ -107,11 +109,11 @@ qualitatives_vars= data.frame(Education=data_project$Education,
 ## 2.2. Analyse statististique
 
 ### 2.2.1. Variables quantitatives
-On Effectue l'analyse statistique descriptive de chacune des variables quantitatives incluses dans `quantitative_vars`
+Nous allons effectuer l'analyse statistique descriptive de chacune des variables quantitatives incluses dans `quantitative_vars`
 ```{r}
 summary(quantitatives_vars)
 ```
-COMMENTAIRE On constate que les employés ont majoritairement rejoint l’entreprise entre 2013 et 2017, avec un niveau de rémunération le plus souvent égal à 3. L’âge médian est de 28 ans et l’expérience médiane de 3 ans, ce qui indique une population plutôt jeune et relativement peu expérimentée. Les valeurs minimales et maximales restent cohérentes et ne montrent pas d’anomalies particulières.
+On constate que les employés ont majoritairement rejoint l’entreprise entre 2013 et 2017, avec un niveau de rémunération le plus souvent égal à 3. L’âge médian est de 28 ans et l’expérience médiane de 3 ans, ce qui indique une population plutôt jeune et relativement peu expérimentée. Les valeurs minimales et maximales restent cohérentes et ne montrent pas d’anomalies particulières.
 
 ### 2.2.2. Variables qualitatives
 
@@ -121,17 +123,7 @@ Pour chacune des variables qualitatives incluses dans `qualitative_vars`
 summary(qualitatives_vars)
 ```
 
-COMMENTAIRE La majorité des employés ont un niveau d’études Bachelors et travaillent principalement à Bangalore. La plupart sont des hommes, appartiennent au PaymentTier 3 et n’ont jamais été “benched”. Ces répartitions montrent un dataset déséquilibré pour plusieurs catégories, ce qui devra être pris en compte dans l’analyse.
-
-### 2.2.3. Target
-
-Indiquer le nombre d’observations tombées dans chacune des deux catégories de la réponse
-
-```{r}
-summary(target)
-```
-
-COMMENTAIRE La variable LeaveOrNot montre un déséquilibre marqué : 3053 employés restent dans l’entreprise contre 1600 qui partent. La classe Rester est donc majoritaire, ce qui devra être pris en compte lors de la modélisation.
+La majorité des employés ont un niveau d’études Bachelors et travaillent principalement à Bangalore. La plupart sont des hommes, appartiennent au PaymentTier 3 et n’ont jamais été “benched”. Ces répartitions montrent un jeu de données déséquilibré pour plusieurs catégories ce qui devra être pris en compte dans l’analyse.
 
 ## 2.3. Analyse graphique
 
@@ -145,7 +137,7 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 
-COMMENTAIRE Les histogrammes permettent d’observer la répartition générale des variables quantitatives du dataset. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
+Les histogrammes permettent d’observer la répartition générale des variables quantitatives du jeu de données. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
 
 ### 2.3.2 - Les Variables qualitatives
 
@@ -157,15 +149,15 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 
-COMMENTAIRE Les barplots permettent d’observer la répartition des différentes catégories des variables qualitatives du dataset. On constate qu’il y a davantage d’hommes que de femmes dans l’entreprise. La majorité des employés n’ont jamais été en période d’inactivité (benched). Le niveau d’étude le plus fréquent est le Bachelor, tandis que les Masters et surtout les PhD sont moins représentés. Enfin, la plupart des employés travaillent à Bangalore, suivie de New Delhi et Pune.
+Les barplots permettent d’observer la répartition des différentes catégories des variables qualitatives du jeu de données. Nous constatons qu’il y a davantage d’hommes que de femmes dans l’entreprise. La majorité des employés n’ont jamais été en période d’inactivité (benched). Le niveau d’étude le plus fréquent est le Bachelor, tandis que les Masters et surtout les PhD sont moins représentés. Enfin, la plupart des employés travaillent à Bangalore, suivie de New Delhi et Pune.
 
 #3 - Analyse multivariée
 
-Il est important d’étudier la relation entre les différentes variables explicatives car certaines peuvent parfois être redondantes. De plus, nous allons vérifier qu'il n'y est pas une forte colinéarité entre variables pouvant poser problème en rendant les modèles moins fiables ou plus difficiles à interpréter.
+Il est important d’étudier la relation entre les différentes variables explicatives car certaines peuvent parfois être redondantes. De plus, nous allons vérifier qu'il n'y ait pas une forte colinéarité entre les variables, ce qui pourrait poser problème en rendant les modèles moins fiables ou plus difficiles à interpréter.
 
 ## 3.1 - Matrice corrélation {#sec:correlation}
 
-Dans un premier temps, on calcule la corrélation de chacune des paires de variables quantitatives puis on représente graphiquement leurs valeurs.
+Dans un premier temps, nous calculons la corrélation de chacune des paires de variables quantitatives puis représentons graphiquement leurs valeurs.
 
 ```{r, fig.show='center', out.width='50%'}
 library(reshape2)
@@ -190,11 +182,11 @@ ggplot(data = melted_cor_mat, aes(x = Var1, y = Var2, fill = value)) +
   labs(title = "Correlation heatmap", x = "", y = "", fill = "corrélation")
 ```
 
-On ne remarque aucune forte corrélation entre les variables quantitatives (inférieur à 0.1 pour toutes), celle-ci étant légèrement plus haute entre l'âge et l'expérience, mais restant tout de même assez faible, ce qui est bon signe.
+Nous ne remarquons aucune forte corrélation entre les variables quantitatives (inférieur à 0.1 pour toutes), celle-ci étant légèrement plus haute entre l'âge et l'expérience, mais restant tout de même assez faible, ce qui est bon signe.
 
 ## 3.2 Variables quantitatives et target
 
-On représente graphiquement la relation entre chacune des variables quantitatives incluses dans `quantitative_vars` et la target.
+Nous représentons graphiquement la relation entre chacune des variables quantitatives incluses dans `quantitative_vars` et la target.
 
 ```{r, fig.show='hold', out.width='50%'}
 for(i in 1:ncol(quantitatives_vars)){
@@ -209,11 +201,11 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 
-On remarque que l'âge, l'expérience et l'année ou l'employée rejoins l'entreprise ne semble pas avoir d'impacte car ils ont des distributions très similaires. Cependant, le niveau de paiement de l'employée a un fort impacte : la plupart des employés restant dans l'entreprise, voir quasiment tous, sont de la catégorie 3.
+Nous remarquons que l’âge, l’expérience et l’année où l’employé rejoint l’entreprise ne semblent pas avoir d’impact car ils présentent des distributions très similaires. Cependant, le niveau de rémunération de l’employé a un fort impact : la plupart des employés restant dans l’entreprise, voire quasiment tous, appartiennent à la catégorie 3.
 
 ## 3.3 - Variables qualitatives et target
 
-Observons maintenant le nombre d'individu dans chacune de nos différentes catégorie dans `qualitative_vars` :
+Nous observons maintenant le nombre d'individu dans chacune de nos différentes catégorie dans `qualitative_vars` :
 
 ```{r, fig.show='hold', out.width='50%'}
 
@@ -235,7 +227,7 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 
-On remarque par exemple qu'il y a très peu d'individus PHD (équivalent de doctorat), de catégorie de rémunération de niveau 1 et d'individus ayant déjà été temporairement sans missions. Ces distribiutions inégales rendent les comparaisons difficiles Nous préférons donc calculer cette fois-ci la proportion, plutôt que le nombre d'individus, ce qui donne un aperçu bien plus lisible.
+On remarque par exemple qu'il y a très peu d'individus titulaires d'un PhD (équivalent du doctorat), de catégorie de rémunération de niveau 1 ou d'individus ayant déjà été temporairement sans mission. Ces distributions inégales rendent les comparaisons difficiles. Nous préférons donc calculer cette fois-ci la proportion plutôt que le nombre d'individus ce qui donne un aperçu bien plus lisible.
 
 ```{r, fig.show='hold', out.width='50%'}
 for(i in 1:ncol(qualitatives_vars)){
@@ -252,9 +244,9 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 
-On observe des proportions d'individus différentes pour chacune des variables. Cependant, les différences sont bien présentes mais ne semblent pas flagrante.
+On observe à présent des proportions d'individus différentes pour chacune des variables. Les écarts sont bien réels, bien qu'ils ne semblent pas flagrants à première vue.
 
-PHRASE DE TRANSITION Pour passer aux classifieurs.
+Puisque ces analyses ne permettent pas de dégager de conclusions définitives, nous allons construire nos premiers modèles de classification.
 
 # 4 - Classifieur 1: Arbre de décisions :
 
@@ -267,7 +259,7 @@ Avant de construire un classifieur (arbre de décision), il est nécessaire de :
 
 ## 4.1 - Identification des valeurs manquantes
 
-Ce code calcule le nombre de valeurs manquantes pour chaque variable du jeu de données.
+Dans un premier temps, nous allons identifier le nombre de valeurs manquantes pour chaque variable du jeu de données.
 
 ```{r}
 colSums(is.na(data_project))
@@ -278,8 +270,6 @@ On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifi
 ## 4.2 - Création du dataframe contenant uniquement les variables utiles
 
 Nous construisons un nouveau dataframe contenant uniquement les variables nécessaires à la prédiction, afin d'éviter d'inclure des colonnes inutiles.
-
-Créer un dataframe nommé `predictive_vars` contenant les variables qualitatives et quantitatives que l'on souhaite utiliser pour prédire la target :
 
 ```{r}
 predictive_vars = data.frame(Age = data_project$Age, Experience = data_project$ExperienceInCurrentDomain,
@@ -295,7 +285,7 @@ predictive_vars = data.frame(Age = data_project$Age, Experience = data_project$E
 
 Nous partageons le jeu de données en Train/Test, avec 80% des observations placées dans l’ensemble d’apprentissage.
 
-Ce bloc de code réalise la séparation du jeu de données en deux parties : 80 % pour l’apprentissage (train), 20 % pour le test (test). La fonction set.seed(1234) garantit que la sélection aléatoire sera reproductible. Ensuite, sample() tire au hasard les indices correspondant aux observations du jeu d’apprentissage. Les variables explicatives (predictive_vars) et la variable cible (target_vector) sont ensuite découpées selon ces indices.
+Ce bloc de code réalise la séparation du jeu de données en deux parties : 80 % pour l’apprentissage (train), 20 % pour le test (test). La fonction set.seed(1954) garantit que la sélection aléatoire sera reproductible. Ensuite, `sample()` tire au hasard les indices correspondant aux observations du jeu d’apprentissage. Les variables explicatives (predictive_vars) et la variable cible (target) sont ensuite découpées selon ces indices.
 
 ```{r}
 set.seed(1954)
@@ -309,11 +299,11 @@ target_train            = target[inTrain]
 
 ```
 
-Ce découpage permet d’entraîner les modèles sur un ensemble d’observations tout en conservant un jeu de test indépendant pour évaluer leur performance. La répartition 80/20 est un standard en machine learning et assure un bon compromis entre quantité de données pour l’apprentissage et fiabilité de l’évaluation.
+Ce découpage permet d’entraîner les modèles sur un ensemble d’observations tout en conservant un jeu de test indépendant pour évaluer leur performance.
 
 ## 4.4 - Visualisation de l’arbre
 
-Dans cette étape, nous entraînons un arbre de décision sur le jeu d'apprentissage. Le modèle utilise toutes les variables explicatives pour prédire la variable cibe LeaveOrNot. L'objectif est d'identifier les critères les plus discriminants permettant de séparer les employés qui restent de ceux qui quittent l'entreprise.
+Dans cette étape, nous entraînons un arbre de décision sur le jeu d'apprentissage. Le modèle utilise toutes les variables explicatives pour prédire notre target `LeaveOrNot`. L'objectif est d'identifier les critères les plus discriminants permettant de séparer les employés qui restent de ceux qui quittent l'entreprise.
 
 ```{r, message = FALSE, warning = FALSE}
 library(rpart)
@@ -334,13 +324,11 @@ rpart.plot(x = classifTree, type = 3, extra = 2, fallen.leaves = TRUE,
            main = "Arbre de prédiction : savoir si un employé va quitter ou non une entreprise")  
 ```
 
-L’arbre montre que la variable la plus importante pour prédire le départ d’un employé est JoiningYear : les employés ayant rejoint l’entreprise à partir de 2018 sont majoritairement classés comme quittant l’entreprise. Pour les employés entrés avant 2018, la variable suivante la plus discriminante est PaymentTier:Les employés avec un PaymentTier = 3 (niveau de rémunération élevé) sont majoritairement classés comme restant. Les employés avec un PaymentTier \< 3 présentent davantage de départs, surtout lorsque l’année d’entrée est ancienne. L’arbre met également en évidence des effets secondaires : Education, Gender, Age et City interviennent dans les branches plus profondes, mais leur influence est moins forte. Certaines feuilles montrent une forte majorité de “0” (rester), ce qui indique un dataset déséquilibré où la majorité des employés ne quittent pas l’entreprise. Globalement, l’arbre révèle que l’année d’entrée et le niveau de rémunération sont les facteurs les plus déterminants dans la prédiction du turnover.
+L’arbre montre que la variable la plus importante pour prédire le départ d’un employé est **JoiningYear** : les employés ayant rejoint l’entreprise à partir de 2018 sont majoritairement classés comme quittant l’entreprise. Pour les employés entrés avant 2018, la variable suivante la plus discriminante est PaymentTier:Les employés avec un **PaymentTier** = 3 (niveau de rémunération élevé) sont majoritairement classés comme restant. Les employés avec un PaymentTier \< 3 présentent davantage de départs, surtout lorsque l’année d’entrée est ancienne. L’arbre met également en évidence des effets secondaires : **Education**, **Gender**, **Age** et **City** interviennent dans les branches plus profondes, mais leur influence est moins forte. Certaines feuilles montrent une forte majorité de “0” (rester), ce qui indique un dataset déséquilibré où la majorité des employés ne quittent pas l’entreprise. Globalement, l’arbre révèle que l’année d’entrée et le niveau de rémunération sont les facteurs les plus déterminants dans la prédiction du turnover.
 
 ## 4.5 - Prédiction sur le jeu de test
 
-Dans cette étape, nous utilisons l’arbre de décision entraîné pour prédire la classe (LeaveOrNot) sur le jeu de test. Nous comparons ensuite les prédictions au vrai label grâce à une matrice de confusion, ce qui permet d’évaluer la performance du modèle sur des données jamais vues.
-
-Prédiction de la target avec la partie test de notre jeu de données.
+Dans cette étape, nous utilisons l’arbre de décision entraîné pour prédire la variable `LeaveOrNot` sur le jeu de test. Nous comparons ensuite les prédictions au vrai label grâce à une matrice de confusion, ce qui permet d’évaluer la performance du modèle sur des données jamais vues.
 
 ```{r, message = FALSE, warning = FALSE}
 #install.packages("caret")
@@ -360,23 +348,9 @@ precision(data = target_pred, reference = target_test, relevant = "Rester")
 confusionMatrix(data = target_pred, reference = target_test)$table
 ```
 
-```{r}
-# Voici la deuxième version plus smple de ce que j'ai fait : 
-library(caret)
-cm <- confusionMatrix(target_pred, target_test)
+Le modèle atteint une accuracy de 83,89 %, ce qui traduit une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. Le recall de 0,945 montre qu’il identifie très bien les employés qui restent, tandis que la precision de 0,828 indique qu’environ 83 % des prédictions `Rester` sont correctes. Ces résultats révèlent un modèle performant mais légèrement biaisé vers l'évènement `Rester`, ce qui s’explique par le déséquilibre du jeu de données, où la majorité des employés ne quittent pas l’entreprise.
 
-accuracy  <- cm$overall["Accuracy"]
-recall    <- cm$byClass["Recall"]      
-precision <- cm$byClass["Precision"]   
-
-accuracy
-recall
-precision
-```
-
-Le modèle atteint une accuracy de 81,85 %, ce qui traduit une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. Le recall de 0,927 montre qu’il identifie très bien les employés qui restent, tandis que la precision de 0,822 indique qu’environ 82 % des prédictions “Rester” sont correctes. Ces résultats révèlent un modèle performant mais légèrement biaisé vers la classe Rester, ce qui s’explique par le déséquilibre du dataset, où la majorité des employés ne quittent pas l’entreprise.
-
-Dire ce que ça fait ici \## 4.6 - Élagage de l’arbre (Cost‑Complexity Pruning)
+## 4.6 - Élagage de l’arbre (Cost‑Complexity Pruning)
 
 Ce bloc de code réalise l’élagage de l’arbre de décision à l’aide du Cost-Complexity Pruning. L’objectif est d’identifier la valeur optimale du paramètre de complexité (cp) qui minimise l’erreur de validation croisée (xerror), puis de reconstruire un arbre plus simple et plus généraliste. Cela permet de réduire le surapprentissage et d’obtenir un modèle plus interprétable.
 
@@ -384,15 +358,13 @@ Ce bloc de code réalise l’élagage de l’arbre de décision à l’aide du C
 plotcp(classifTree, upper = "splits")
 ```
 
-Le modèle obtient une accuracy de 81,85 %, ce qui indique une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. La sensibilité (0.927) est très élevée : le modèle identifie très bien les employés qui restent (classe 0). En revanche, la spécificité (0.502) est plus faible : le modèle a plus de difficulté à détecter correctement les employés qui partent (classe 1). Le kappa (0.56) montre une concordance correcte entre les prédictions et la réalité, supérieure à un simple hasard. Globalement, le modèle est performant mais tend à prédire plus souvent “rester” que “partir”, ce qui reflète probablement un déséquilibre dans le dataset (majorité de classe 0).
-
 ```{r}
 classifTree$cptable
 xerror  = classifTree$cptable[, 4]
 xstd    = classifTree$cptable[, 5]
 ```
 
-On trouve la meilleure valeur du paramètre de complexité
+On trouve la meilleure valeur du paramètre de complexité.
 
 ```{r}
 cp          = classifTree$cptable[, 1]
@@ -400,54 +372,41 @@ min.xerror  = which.min(xerror)
 bestcp      = cp[min(which(xerror < (xerror [min.xerror] + xstd[min.xerror])))]
 ```
 
-On utilise cette valeur pour élaguer l'arbre
+On utilise cette valeur pour élaguer l'arbre.
 
 ```{r}
 prunedTree = prune(tree = classifTree, cp = bestcp)
 ```
 
-On trace ensuite l'abre ;
+On trace ensuite l'arbre.
 
 ```{r, fig.align='center', out.width='50%'}
-rpart.plot(prunedTree, type = 3, extra = 2, fallen.leaves = TRUE, main = "Arbre de prédiction : savor si un employé va quitter ou non une entreprise")  
+rpart.plot(prunedTree, type = 3, extra = 2, fallen.leaves = TRUE, main = "Arbre de prédiction : savoir si un employé va quitter ou non une entreprise")  
 ```
 
 ## 4.7 - Interprétation du résultat du code (table CP + choix du bestcp)
 
 La table cptable affiche, pour chaque niveau de complexité, l’erreur relative et l’erreur de validation croisée. Le meilleur cp correspond à la ligne où xerror est minimal. Dans notre cas, ce cp optimal est celui utilisé pour élaguer l’arbre. Cela signifie que l’arbre final est celui qui offre le meilleur compromis entre simplicité et performance prédictive.
 
+REVOIR CES INTERPRETATIONS !
 ## 4.8 - Interprétation de l’arbre élagué
 
-L’arbre élagué conserve la même structure logique que l’arbre initial, mais avec moins de branches. Les variables les plus importantes restent les mêmes : JoiningYear (variable la plus discriminante), PaymentTier,puis, plus loin dans l’arbre : Education, Gender, Age, City. L’élagage supprime les divisions les moins utiles, c’est‑à‑dire celles qui n’améliorent pas significativement la performance. Le résultat est un arbre plus court, plus lisible, qui généralise mieux et limite le risque de surapprentissage.
+L’arbre élagué conserve la même structure logique que l’arbre initial, mais avec moins de branches. Les variables les plus importantes restent les mêmes : **JoiningYear** (variable la plus discriminante), **PaymentTier**, puis, plus loin dans l’arbre : **Education**, **Gender**, **Age**, **City**. L’élagage supprime les divisions les moins utiles, c’est‑à‑dire celles qui n’améliorent pas significativement la performance. Le résultat est un arbre plus court plus lisible qui généralise mieux et limite le risque de surapprentissage.
 
 ## 4.9 - En quoi cet arbre diffère du premier ?
 
-Différences entre l’arbre initial et l’arbre élagué : L’arbre élagué contient moins de nœuds et moins de niveaux. Certaines branches profondes du premier arbre ont été supprimées car elles n’apportaient pas d’amélioration significative. Les règles principales (JoiningYear, PaymentTier) restent identiques, ce qui montre que l’élagage n’a pas modifié la logique globale du modèle. L’arbre élagué est plus simple à interpréter, plus stable et moins sensible au bruit. En résumé : l’arbre élagué est une version “nettoyée” du premier arbre, plus robuste et plus lisible, tout en conservant les décisions essentielles.
+L’arbre élagué contient moins de nœuds et moins de niveaux. Certaines branches profondes du premier arbre ont été supprimées car elles n’apportaient pas d’amélioration significative. Les règles principales (JoiningYear, PaymentTier) restent identiques, ce qui montre que l’élagage n’a pas modifié la logique globale du modèle. L’arbre élagué est plus simple à interpréter, plus stable et moins sensible au bruit. En résumé : l’arbre élagué est une version “nettoyée” du premier arbre, plus robuste et plus lisible, tout en conservant les décisions essentielles.
 
 #5 - Choix des deux classifieur :
 
 ## 5.1 - Pourquoi on a choisit l'Arbre de décision comme classifieur :
 
-Nous avons choisi l’arbre de décision comme premier classifieur car il ne repose sur aucune hypothèse forte concernant la distribution des variables ou leur indépendance, ce qui le rend particulièrement adapté à notre jeu de données où les variables explicatives présentent des dépendances et des distributions non gaussiennes. Il accepte naturellement les variables qualitatives et quantitatives, capture automatiquement les interactions entre prédicteurs et fournit un modèle très lisible. La visualisation de l’arbre met immédiatement en évidence les variables les plus discriminantes (notamment JoiningYear puis PaymentTier) ainsi que les règles de décision utilisées pour distinguer les employés qui restent de ceux qui partent, sous forme de segments simples et explicites. Cette interprétabilité, combinée à sa robustesse face à des données hétérogènes et complexes, ainsi qu’à la possibilité d’élaguer l’arbre pour éviter le surapprentissage, fait de l’arbre de décision un choix cohérent et pertinent pour notre première approche de classification.
+Nous avons choisi l’arbre de décision comme premier classifieur car il accepte naturellement les variables qualitatives et quantitatives, capture automatiquement les interactions entre prédicteurs et fournit un modèle très lisible. La visualisation de l’arbre met immédiatement en évidence les variables les plus discriminantes (notamment JoiningYear puis PaymentTier) ainsi que les règles de décision utilisées pour distinguer les employés qui restent de ceux qui partent, sous forme de segments simples et explicites. Cette interprétabilité fait de l’arbre de décision un choix cohérent et pertinent pour notre première approche de classification.
 
-## 5.2 - Classifieur 2 :
-
-Pour sélectionner notre second classifieur, nous hésitions entre la méthode des K plus proches voisins et le classifieur Naïve Bayes. Comme l’hypothèse fondamentale de Naïve Bayes repose sur l’indépendance conditionnelle des variables explicatives sachant la classe, nous avons cherché à vérifier si cette hypothèse était raisonnablement respectée dans notre jeu de données. L’objectif était de déterminer si les variables explicatives sont effectivement indépendantes les unes des autres conditionnellement à LeaveOrNot, afin d’orienter et de justifier notre choix de classifieur. 
-Nous avons déjà calculé dans la partie 3.1 la correlation entre les variables. L’objectif est de vérifier si les variables explicatives sont indépendantes conditionnellement à la classe, ce qui est l’hypothèse centrale du classifieur naïf bayésien.
-
-Nous avons donc pu remarquer que les corrélations obtenues sont toutes très faibles. Ces résultats montrent que les variables quantitatives ne présentent pas de dépendances fortes, même conditionnellement à la classe. Conclusion : pour les variables quantitatives uniquement, l’hypothèse d’indépendance conditionnelle de Naive Bayes n’est pas fortement violée.
-
-!!!! je doute avoir vu ça en cours...
-
-## 5.3 - Vérifier si les distributions conditionnelles se recouvrent
-
-Les distributions sont-elles gaussiennes ?
-
-Les histogrammes montrent : - Age → distribution asymétrique, pas normale - Experience → distribution très concentrée, pas normale - PaymentTier → distribution catégorielle déguisée en numérique - JoiningYear → distribution en “paliers”, pas normale. Donc l’hypothèse de normalité n’est pas respectée. \# Les distributions sont-elles différentes entre les classes ? Regardons les boxplots : Age : les distributions se recouvrent presque totalement Naive Bayes aura du mal à séparer les classes. Experience : même chose, distributions très proches Peu discriminant. JoiningYear : là, il y a une vraie différence Les employés qui partent ont rejoint plus récemment. Variable discriminante. Conclusion : seule JoiningYear aide vraiment Naive Bayes. Ce n’est pas éliminatoire, mais c’est un point contre Naive Bayes.
 
 ## 5.4 - Conclusion :
 
-L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien. De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre dataset, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
+L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien. De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre jeu de données, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
 
 # 6 - Classifieur 2 : KNN :
 
