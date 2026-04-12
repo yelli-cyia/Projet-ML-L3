@@ -10,7 +10,7 @@ header-includes:
 - "\\fancyhead[LO]{Projet du cours de Compléments de Mathématiques 2 2025-2026}"
 ---
 
-# PROJET DU COURS DE COMPLEMENT \n DE MATHEMATIQUES 2
+# PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2
 # Introduction
 
 ## Contexte
@@ -126,9 +126,10 @@ COMMENTAIRE
 
 Pour chacune des variables qualitatives incluses dans `qualitative_vars`
 ```{r}
-summary(qualitative_vars)
+summary(qualitatives_vars)
 ```
 COMMENTAIRE
+
 ### 2.2.3. Target
 
 Indiquer le nombre d’observations tombées dans chacune des deux catégories de la réponse 
@@ -136,6 +137,7 @@ Indiquer le nombre d’observations tombées dans chacune des deux catégories d
 summary(target)
 ```
 COMMENTAIRE
+
 ## 2.3. Analyse graphique
 
 ### 2.3.1 - Les Variables quantitatives
@@ -148,6 +150,7 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 COMMENTAIRE
+
 ### 2.3.2 - Les Variables qualitatives
 
 ```{r, out.width = "50%", fig.align = "center"}
@@ -158,6 +161,7 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 COMMENTAIRE
+
 #3 - Analyse multivariée 
 
 Il est important d’étudier la relation entre les différentes variables explicatives car certaines peuvent parfois être redondantes. De plus, nous allons vérifier qu'il n'y est pas une forte colinéarité entre variables pouvant poser problème en rendant les modèles moins fiables ou plus difficiles à interpréter.
@@ -446,8 +450,7 @@ Les histogrammes montrent : - Age → distribution asymétrique, pas normale - E
 
 L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien. De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre dataset, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
   
-      !!!!! PAUSE, J'AI TOUT CA A REVOIR !!!!!
-  
+      
 # 6 - Classifieur 2 : KNN :
 
 La méthode des K plus proches voisins est une méthode d’apprentissage supervisé qui prédit la catégorie d’appartenance d’une nouvelle observation en utilisant celles de K instances du jeu de données d’entraînement qui lui sont le plus similaires possible. Il faut pour cela trouver une valeur de k appropriée de manière à prédire le mieux possible la catégorie d'appartenance à un individu.
