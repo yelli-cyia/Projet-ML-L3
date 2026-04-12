@@ -600,7 +600,7 @@ En effet, les résultats de la méthode du Holdout dépendent énormément du d�
 
 ### 6.3.1 - Répartition du jeu de données et normalisation
 
-Comme avant, on met une partie test de coté pour pouvoir évaluer les performances du classifieur final. La différence c'est qu'on voudrait séparer du reste du jeu de données en différentes 10 portions différentes et les utiliser de manière répétée comme Train et Validation. La meilleure valeur de k va donc être choisie en utilisant la moyenne de chacuns des 10 classifieurs. Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
+Comme avant, on met une partie test de coté pour pouvoir évaluer les performances du classifieur final. La différence c'est qu'on voudrait séparer du reste du jeu de données en 10 portions différentes et les utiliser de manière répétée comme Train et Validation. La meilleure valeur de k va donc être choisie en utilisant la moyenne de chacuns des 10 classifieurs. Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
 
 On sépare d'abord le test avec 10% des observations.
 
@@ -732,6 +732,7 @@ mean(c(accuracy_test, recall_test, precision_test))
 De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision toutes supérieur à 80%. La moyenne de l'accuracy, du recall et de la precision est légèrement plus haute avec la cross-validation.
 
 ## 6.4 - Analyse des résultats obtenus
+
 Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations. On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, **la proportion de vrais positifs ayant été correctement classifié est particulièrement élevée**.
 
 # 7 - Conclusion
