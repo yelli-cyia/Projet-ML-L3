@@ -169,9 +169,12 @@ for(i in 1:ncol(quantitatives_vars)){
           xlab = "LeaveOrNot")
 }
 ```
+On remarque que l'âge, l'expérience et l'année ou l'employée rejoins l'entreprise ne semble pas avoir d'impacte car ils ont des distributions très similaires.
+Cependant, le niveau de paiement de l'employée a un fort impacte : la plupart des employés restant dans l'entreprise, voir quasiment tous, sont de la catégorie 3.
 
 ### 1.6.3 - Variables qualitatives et target
 
+Observons maintenant le nombre d'individu dans chacune de nos différentes catégorie dans `qualitative_vars` :
 ```{r}
 library(ggplot2)
 library(reshape2)
@@ -193,8 +196,8 @@ for(i in 1:ncol(qualitatives_vars)){
   )
 }
 ```
-
-On calcule cette fois-ci la proportion, plutôt que le nombre, ce qui donne un aperçu plus lisible.
+On remarque par exemple qu'il y a très peu d'individus PHD (équivalent de doctorat), de catégorie de rémunération de niveau 1 et d'individus ayant déjà été temporairement sans missions. Ces distribiutions inégales rendent les comparaisons difficiles
+Nous préférons donc calculer cette fois-ci la proportion, plutôt que le nombre d'individus, ce qui donne un aperçu bien plus lisible.
 
 ```{r}
 for(i in 1:ncol(qualitatives_vars)){
@@ -212,6 +215,8 @@ for(i in 1:ncol(qualitatives_vars)){
   )
 }
 ```
+On observe des proportions d'individus différentes pour chacune des variables. Cependant, les différences sont bien présentes mais ne semblement pas flagrante.
+
 PREMIERE PARTIE QUI EST GOOD !!!!!!!!!
 # Fin de l'analyse multivariée
 
@@ -478,7 +483,7 @@ inValidation  = sample(notinTest, size = round(0.1 * n), replace = FALSE)
 c(inTest, inValidation)
 ```
 
-On réparti ensuite le split en 81/10/10 :
+On réparti ensuite le split en 80/10/10 :
 
 ```{r}
 predictive_vars_test        = predictive_vars[inTest,]
