@@ -538,9 +538,11 @@ for(K in KGrid){
   
   accuracy_val=c(accuracy_val,mean(target_pred==target_validation))
   
-  recall_val=c(recall_val,recall(target_pred,reference=target_validation,relevant="Rester"))
+  recall_val=c(recall_val,recall(target_pred,reference=target_validation,
+                                 relevant = "Rester"))
   
-  precision_val=c(precision_val,precision(target_pred,reference=target_validation,relevan = "Rester"))
+  precision_val=c(precision_val,precision(target_pred,
+                                          reference=  target_validation,relevan = "Rester"))
 }
 ```
 
@@ -552,11 +554,11 @@ plot(KGrid, recall_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Recal
 plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
 ```
 
-Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur k = 10 semble intéressante et offre un bon équilibre entre les trois métriques, nous permettant ainsi de maximiser l'accuracy tout en ayant des valeurs quasiment maximales pour le recall et la precision.
+Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur k = 10 semble intéressante et offre un bon équilibre entre les trois métriques, nous permettant ainsi de maximiser l'accuracy tout en ayant des valeurs quasiment maximales pour le recall et la precision. 
 
-### 6.2.1 - Performance du classifieur final
+### 6.2.4 - Performance du classifieur final
 
-On pourrait enfin évaluer les performances du classifieur final obtenu pour K = 10 voisins sur la partie Test.
+On peut donc enfin évaluer les performances du classifieur final obtenu pour K = 10 voisins sur la partie Test. Nous utilisons donc les 10 individus ayant des caractéristiques similaire à un individus pour tenter de catégoriser ce dernier.
 
 Nous avons donc choisi la valeur de k, nous pouvons maintenant recombiner les parties Train et Validation pour faire l'apprentissage sur un jeu de donnée encore plus gros.
 
@@ -568,13 +570,16 @@ c(target_train, target_validation)
 On recombine le train et validation et on regarde les valeurs de l'accuracy, de la precision et du recall.
 
 ```{r, results = "hide"}
-target_pred = knn(train = rbind(predictive_vars_train, predictive_vars_validation), test = predictive_vars_test, cl = c(target_train, target_validation), k = 10)
+target_pred = knn(train = rbind(predictive_vars_train, predictive_vars_validation),
+                  test = predictive_vars_test, cl = c(target_train, target_validation),
+                  k = 10)
 
 accuracy_test = mean(target_pred == target_test)
 
 recall_test = recall(data = target_pred, reference = target_test, relevant = "Rester")
 
-precision_test = precision(data = target_pred, reference = target_test, relevant = "Rester")
+precision_test = precision(data = target_pred, reference = target_test,
+                           relevant = "Rester")
 
 ```
 
@@ -661,9 +666,12 @@ for(k in 1:nfolds){
     
     accuracy_K = c(accuracy_K, mean(target_pred == target_validation))
    
-     recall_K = c(recall_K, recall(data = target_pred, reference = target_validation, relevant = "Rester"))
+     recall_K = c(recall_K, recall(data = target_pred,
+                                   reference = target_validation, relevant = "Rester"))
      
-    precision_K = c(precision_K, precision(data = target_pred, reference = target_validation, relevant = "Rester"))}
+    precision_K = c(precision_K, precision(data = target_pred,
+                                           reference = target_validation,
+                                           relevant = "Rester"))}
   
   accuracy_fold = rbind(accuracy_fold, accuracy_K)
   recall_fold = rbind(recall_fold, recall_K)
@@ -689,9 +697,12 @@ Nous allons maintenant séléctionner l'hyperparamètre k. Nous utilisons la mé
 Nous allons choisir k graphiquement, en tracant la 10-fold mean accuracy, recall et precision en fonction des valeurs de K étudiées.
 
 ```{r, out.width = "33%", fig.show='hold'}
-plot(KGrid, colMeans(accuracy_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
-plot(KGrid, colMeans(recall_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Recall")
-plot(KGrid, colMeans(precision_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
+plot(KGrid, colMeans(accuracy_fold), type = 'l', xlab = "K, nombre de voisins",
+     ylab = "Accuracy")
+plot(KGrid, colMeans(recall_fold), type = 'l', xlab = "K, nombre de voisins",
+     ylab = "Recall")
+plot(KGrid, colMeans(precision_fold), type = 'l', xlab = "K, nombre de voisins",
+     ylab = "Precision")
 ```
 
 La valeur k = 11 offre un bon compromis pour l'accuracy et le recall, mais une precision plus faible. La precision et le recall évoluant dans des sens opposés, il est dur de maximiser les deux.
@@ -707,13 +718,15 @@ Proc = preProcess(predictive_vars_remain, method = "range")
 predictive_vars_remain = predict(Proc, predictive_vars_remain)
 predictive_vars_test   = predict(Proc, predictive_vars_test)
 
-target_pred = knn(train = predictive_vars_remain, test = predictive_vars_test, cl = target_remain, k = 11)
+target_pred = knn(train = predictive_vars_remain, test = predictive_vars_test,
+                  cl = target_remain, k = 11)
 
 accuracy_test = mean(target_pred == target_test)
 
 recall_test = recall(data = target_pred, reference = target_test, relevant = "Rester")
 
-precision_test = precision(data = target_pred, reference = target_test, relevant = "Rester")
+precision_test = precision(data = target_pred, reference = target_test,
+                           relevant = "Rester")
 
 confusionMatrix(target_pred, target_test)$table
 
@@ -733,7 +746,7 @@ De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision
 
 ## 6.4 - Analyse des résultats obtenus
 
-Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations. On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, **la proportion de vrais positifs ayant été correctement classifié est particulièrement élevée**.
+Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, qui présentent des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations. On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, **la proportion de vrais positifs ayant été correctement classifié est particulièrement élevée**.
 
 # 7 - Conclusion
 
