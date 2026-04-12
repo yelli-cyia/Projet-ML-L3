@@ -500,9 +500,9 @@ target_train                = target[-c(inTest,inValidation)]
 
 ### 6.2.2 - Normalisation des variables
 
-Notons que nous n'avons pas de variables manquantes (comme vu dans la 4.1) ; il est donc inutile de faire de l'imputation de variables manquantes. Nous allons standardiser nos variables en faisant de la normalisation Min-Max. Pour nos variables `Gender` et `Benched` qui sont comprises déjà entre 0 et 1, la standardisation n'est donc pas nécessaire. Avec la méthode range, la normalisation ne se fait que sur les variables en dehors de [0,1] de `predictive_vars_train`, excluant automatiquement nos deux variables binaires.
+Notons que nous n'avons aucune donnée manquante (comme établi à la section 4.1) ; il est donc inutile de procéder à une imputation. Nous allons standardiser nos variables via une normalisation Min-Max. Pour nos variables `Gender` et `Benched` qui sont comprises déjà entre 0 et 1, la standardisation n'est donc pas nécessaire. Avec la méthode range, la normalisation ne se fait que sur les variables en dehors de [0,1] de `predictive_vars_train`, excluant automatiquement nos deux variables binaires.
 
-On doit calculer le minimum et maximum (de chaque variable) sur la partie Train seulement pour éviter le data leakage. Ensuite on peut appliquer la transformation Min-Max utilisant le minimum et le maximum dans Train à la partie Test et à la partie Validation. Ainsi on est certain qu'aucune information provenant de la partie Validation ou de la partie Test ne sera utilisée pour l'apprentissage.
+Le minimum et le maximum de chaque variable doivent être calculés sur l'ensemble d'entraînement (Train) uniquement, afin d'éviter tout data leakage. Cette transformation est ensuite appliquée aux ensembles de test et de validation en utilisant les paramètres du Train. Ainsi, nous garantissons qu'aucune information issue de la validation ou du test n'est utilisée lors de la phase d'apprentissage.
 
 ```{r}
 Proc = preProcess(predictive_vars_train, method = "range")
@@ -555,7 +555,7 @@ plot(KGrid, recall_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Recal
 plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
 ```
 
-Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur k = 10 semble intéressante et offre un bon équilibre entre les trois métriques, nous permettant ainsi de maximiser l'accuracy tout en ayant des valeurs quasiment maximales pour le recall et la precision. 
+Plusieurs valeurs de K apparaissent comme pertinentes. La valeur k = 10 s'avère particulièrement intéressante. Elle offre un bon compromis entre les trois métriques, nous permettant de maximiser l'accuracy tout en conservant des valeurs quasiment optimales pour le recall et la precision.
 
 ### 6.2.4 - Performance du classifieur final
 
@@ -599,14 +599,13 @@ mean(c(accuracy_test, recall_test, precision_test))
 Nous avons plus de 80% de prédictions correctes pour chacunes de nos trois métriques. La moyenne de l'accuracy, du recall et de la precision est de 0.841.
 
 ## 6.3 - Méthode des K plus proches voisins avec cross-validation
+Nous avons obtenu des résultats globalement satisfaisants avec la méthode du Holdout. Nous aimerions désormais vérifier si l'utilisation de la méthode de cross-validation nous permet d'améliorer la prédiction des catégories d'individus.
 
-Nous avons eu des résultats globalement satisfaisant avec la méthode du Holdout, nous aimerions comparer si l'utilisation de la méthode de cross-validation nous permet de prédire encore mieux les catégories des individus.
-
-En effet, les résultats de la méthode du Holdout dépendent énormément du découpage qui a été fait. Nous avons remarqué par exemple qu'en changeant la graine fixée, la valeur du k optimale pouvait particulèrement changer. Avec ka cross-validation, nous ne faisons pas un seul découpage mais plusieurs, nous pourrons donc faire une moyenne globale des performances de notre classifieur.
+En effet, les résultats de la méthode du Holdout dépendent énormément du découpage qui a été fait. Nous avons remarqué par exemple qu'en changeant la graine fixée, la valeur du k optimal pouvait particulèrement changer. Avec la cross-validation, nous ne réalisons pas un seul découpage mais plusieurs ($K$-folds). Cela nous permettra de calculer une moyenne globale des performances de notre classifieur..
 
 ### 6.3.1 - Répartition du jeu de données et normalisation
 
-Comme avant, on met une partie test de coté pour pouvoir évaluer les performances du classifieur final. La différence c'est qu'on voudrait séparer du reste du jeu de données en 10 portions différentes et les utiliser de manière répétée comme Train et Validation. La meilleure valeur de k va donc être choisie en utilisant la moyenne de chacuns des 10 classifieurs. Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
+Comme précédemment, nous mettons une partie test de côté afin d'évaluer les performances du classifieur final. La différence est que nous allons diviser le reste du jeu de données en 10 portions distinctes (folds) et les utiliser de manière répétée comme ensembles d'entraînement et de validation. La meilleure valeur de k sera choisie en calculant la moyenne des performances de chacun des 10 classifieurs. Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
 
 On sépare d'abord le test avec 10% des observations.
 
@@ -747,11 +746,11 @@ De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision
 
 ## 6.4 - Analyse des résultats obtenus
 
-Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, qui présentent des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations. On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, **la proportion de vrais positifs ayant été correctement classifié est particulièrement élevée**. Tout comme pour le classifieur d'arbre de décision, il faut faire attention à ses résultats qui peuvent être biaisés par le fait que notre jeu de données présente bien plus d'individus qui restent dans l'entreprise.
+Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisants. Que ce soit avec l'approche Hold-Out ou la validation croisée, les performances restent similaires, avec une accuracy, un recall et une précision supérieurs à 80 %. En particulier, dans les deux cas, le modèle se révèle très efficace pour le recall, qui atteint 92 %. On peut en conclure que notre modèle prédit très bien les instances positives : autrement dit, **la proportion de vrais positifs ayant été correctement classifiés est remarquablement élevée.**
 
 # 7 - Conclusion
 
-Ce projet nous a permis de mener une démarche complète d’apprentissage supervisé pour prédire le turnover des employés. L’analyse préliminaire a révélé un dataset déséquilibré et mis en évidence deux variables particulièrement déterminantes : l’année d’entrée et le niveau de rémunération. Les analyses univariée et multivariée ont confirmé l’absence de corrélations fortes entre les variables quantitatives et permis d’identifier les facteurs les plus pertinents. Deux classifieurs ont ensuite été construits : un arbre de décision, performant et facilement interprétable, puis un KNN, choisi après avoir écarté Naive Bayes dont les hypothèses ne correspondaient pas aux données. L’arbre a montré de très bons résultats pour prédire les employés qui restent, tandis que le KNN a apporté une approche complémentaire fondée sur la similarité entre individus. Au final, ce travail nous a permis de comprendre les mécanismes du départ des employés et de comparer deux méthodes de classification adaptées à notre objectif de prédiction. Cependant, nos résultats élevés d'accuracy, de recall et de precision sont à prendre avec des pincettes à cause du déséquilibre de notre jeu de données.
+Ce projet nous a permis de mener une démarche complète d’apprentissage supervisé pour prédire le turnover des employés. L’analyse préliminaire a révélé un jeu de données déséquilibré et mis en évidence deux variables particulièrement déterminantes : l’année d’entrée et le niveau de rémunération. Les analyses univariée et multivariée ont confirmé l’absence de corrélations fortes entre les variables quantitatives et permis d’identifier les facteurs les plus pertinents. Deux classifieurs ont ensuite été construits : un arbre de décision, performant et facilement interprétable, puis un KNN, choisi après avoir écarté Naive Bayes dont les hypothèses ne correspondaient pas aux données. L’arbre a montré de très bons résultats pour prédire les employés qui restent, tandis que le KNN a apporté une approche complémentaire fondée sur la similarité entre individus. Au final, ce travail nous a permis de comprendre les mécanismes du départ des employés et de comparer deux méthodes de classification adaptées à notre objectif de prédiction.  
 
 # 8 - Contributions de chacun au projet 
 
