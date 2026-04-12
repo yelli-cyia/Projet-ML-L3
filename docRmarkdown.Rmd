@@ -94,6 +94,7 @@ target = factor(data_project$LeaveOrNot, labels = c ("Rester", "Partir"))
 data_project$LeaveOrNot = as.factor(data_project$LeaveOrNot)
 summary(data_project$LeaveOrNot)
 ```
+La variable LeaveOrNot est fortement déséquilibrée : 3053 employés restent dans l’entreprise contre 1600 qui partent. Cette répartition montre que la majorité des observations appartiennent à la classe Rester, ce qui devra être pris en compte lors de la modélisation.
 
 Au vu de nos données, nous considérons que toutes les variables sont toutes utiles pour notre étude, nous n'allons donc pas supprimer ou fusionner des variables de notre jeu de données.
 
@@ -115,12 +116,13 @@ qualitatives_vars= data.frame(Education=data_project$Education,
 
 ### 2.2.1. Variables quantitatives
 
-Effectuer l'analyse statistique descriptive de chacune des variables quantitatives incluses dans `quantitative_vars`
+On Effectue l'analyse statistique descriptive de chacune des variables quantitatives incluses dans `quantitative_vars`
 
 ```{r}
 summary(quantitatives_vars)
 ```
 COMMENTAIRE
+On constate que les employés ont majoritairement rejoint l’entreprise entre 2013 et 2017, avec un niveau de rémunération le plus souvent égal à 3. L’âge médian est de 28 ans et l’expérience médiane de 3 ans, ce qui indique une population plutôt jeune et relativement peu expérimentée. Les valeurs minimales et maximales restent cohérentes et ne montrent pas d’anomalies particulières.
 
 ### 2.2.2. Variables qualitatives
 
@@ -129,6 +131,7 @@ Pour chacune des variables qualitatives incluses dans `qualitative_vars`
 summary(qualitatives_vars)
 ```
 COMMENTAIRE
+La majorité des employés ont un niveau d’études Bachelors et travaillent principalement à Bangalore. La plupart sont des hommes, appartiennent au PaymentTier 3 et n’ont jamais été “benched”. Ces répartitions montrent un dataset déséquilibré pour plusieurs catégories, ce qui devra être pris en compte dans l’analyse.
 
 ### 2.2.3. Target
 
@@ -137,6 +140,7 @@ Indiquer le nombre d’observations tombées dans chacune des deux catégories d
 summary(target)
 ```
 COMMENTAIRE
+La variable LeaveOrNot montre un déséquilibre marqué : 3053 employés restent dans l’entreprise contre 1600 qui partent. La classe Rester est donc majoritaire, ce qui devra être pris en compte lors de la modélisation.
 
 ## 2.3. Analyse graphique
 
@@ -150,6 +154,7 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 COMMENTAIRE
+Les histogrammes permettent d’observer la répartition générale des variables quantitatives du dataset. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
 
 ### 2.3.2 - Les Variables qualitatives
 
@@ -161,6 +166,7 @@ for(i in 1:ncol(qualitatives_vars)){
 }
 ```
 COMMENTAIRE
+Les barplots permettent d’observer la répartition des différentes catégories des variables qualitatives du dataset. On constate qu’il y a davantage d’hommes que de femmes dans l’entreprise. La majorité des employés n’ont jamais été en période d’inactivité (benched). Le niveau d’étude le plus fréquent est le Bachelor, tandis que les Masters et surtout les PhD sont moins représentés. Enfin, la plupart des employés travaillent à Bangalore, suivie de New Delhi et Pune.
 
 #3 - Analyse multivariée 
 
