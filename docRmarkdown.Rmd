@@ -111,7 +111,7 @@ On Effectue l'analyse statistique descriptive de chacune des variables quantitat
 ```{r}
 summary(quantitatives_vars)
 ```
-COMMENTAIRE On constate que les employés ont majoritairement rejoint l’entreprise entre 2013 et 2017, avec un niveau de rémunération le plus souvent égal à 3. L’âge médian est de 28 ans et l’expérience médiane de 3 ans, ce qui indique une population plutôt jeune et relativement peu expérimentée. Les valeurs minimales et maximales restent cohérentes et ne montrent pas d’anomalies particulières.
+On constate que les employés ont majoritairement rejoint l’entreprise entre 2013 et 2017, avec un niveau de rémunération le plus souvent égal à 3. L’âge médian est de 28 ans et l’expérience médiane de 3 ans, ce qui indique une population plutôt jeune et relativement peu expérimentée. Les valeurs minimales et maximales restent cohérentes et ne montrent pas d’anomalies particulières.
 
 ### 2.2.2. Variables qualitatives
 
@@ -121,7 +121,7 @@ Pour chacune des variables qualitatives incluses dans `qualitative_vars`
 summary(qualitatives_vars)
 ```
 
-COMMENTAIRE La majorité des employés ont un niveau d’études Bachelors et travaillent principalement à Bangalore. La plupart sont des hommes, appartiennent au PaymentTier 3 et n’ont jamais été “benched”. Ces répartitions montrent un dataset déséquilibré pour plusieurs catégories, ce qui devra être pris en compte dans l’analyse.
+La majorité des employés ont un niveau d’études Bachelors et travaillent principalement à Bangalore. La plupart sont des hommes, appartiennent au PaymentTier 3 et n’ont jamais été “benched”. Ces répartitions montrent un dataset déséquilibré pour plusieurs catégories, ce qui devra être pris en compte dans l’analyse.
 
 ### 2.2.3. Target
 
@@ -130,8 +130,7 @@ Indiquer le nombre d’observations tombées dans chacune des deux catégories d
 ```{r}
 summary(target)
 ```
-
-COMMENTAIRE La variable LeaveOrNot montre un déséquilibre marqué : 3053 employés restent dans l’entreprise contre 1600 qui partent. La classe Rester est donc majoritaire, ce qui devra être pris en compte lors de la modélisation.
+La variable LeaveOrNot montre un déséquilibre marqué : 3053 employés restent dans l’entreprise contre 1600 qui partent. La classe Rester est donc majoritaire, ce qui devra être pris en compte lors de la modélisation.
 
 ## 2.3. Analyse graphique
 
@@ -145,7 +144,7 @@ for(i in 1:ncol(quantitatives_vars)){
 }
 ```
 
-COMMENTAIRE Les histogrammes permettent d’observer la répartition générale des variables quantitatives du dataset. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
+Les histogrammes permettent d’observer la répartition générale des variables quantitatives du dataset. On voit que les âges sont principalement regroupés autour de la trentaine, ce qui indique une population majoritairement jeune. L’expérience se concentre entre 3 et 6 ans, montrant des employés relativement expérimentés mais encore en début de carrière. Les années d’entrée révèlent une hausse progressive des recrutements au fil du temps, signe d’un développement récent de l’entreprise. Enfin, la distribution du PaymentTier montre une forte concentration dans la catégorie 3, correspondant au niveau de rémunération le plus élevé.
 
 ### 2.3.2 - Les Variables qualitatives
 
@@ -156,8 +155,7 @@ for(i in 1:ncol(qualitatives_vars)){
           xlab = colnames(qualitatives_vars)[i])
 }
 ```
-
-COMMENTAIRE Les barplots permettent d’observer la répartition des différentes catégories des variables qualitatives du dataset. On constate qu’il y a davantage d’hommes que de femmes dans l’entreprise. La majorité des employés n’ont jamais été en période d’inactivité (benched). Le niveau d’étude le plus fréquent est le Bachelor, tandis que les Masters et surtout les PhD sont moins représentés. Enfin, la plupart des employés travaillent à Bangalore, suivie de New Delhi et Pune.
+Les barplots permettent d’observer la répartition des différentes catégories des variables qualitatives du dataset. On constate qu’il y a davantage d’hommes que de femmes dans l’entreprise. La majorité des employés n’ont jamais été en période d’inactivité (benched). Le niveau d’étude le plus fréquent est le Bachelor, tandis que les Masters et surtout les PhD sont moins représentés. Enfin, la plupart des employés travaillent à Bangalore, suivie de New Delhi et Pune.
 
 #3 - Analyse multivariée
 
@@ -383,7 +381,6 @@ Ce bloc de code réalise l’élagage de l’arbre de décision à l’aide du C
 ```{r, fig.align='center', out.width='50%'}
 plotcp(classifTree, upper = "splits")
 ```
-
 Le modèle obtient une accuracy de 81,85 %, ce qui indique une bonne capacité globale à prédire si un employé quitte ou non l’entreprise. La sensibilité (0.927) est très élevée : le modèle identifie très bien les employés qui restent (classe 0). En revanche, la spécificité (0.502) est plus faible : le modèle a plus de difficulté à détecter correctement les employés qui partent (classe 1). Le kappa (0.56) montre une concordance correcte entre les prédictions et la réalité, supérieure à un simple hasard. Globalement, le modèle est performant mais tend à prédire plus souvent “rester” que “partir”, ce qui reflète probablement un déséquilibre dans le dataset (majorité de classe 0).
 
 ```{r}
@@ -775,15 +772,10 @@ De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision
 Avec la méthode des K plus proches voisins, nous obtenons des résultats satisfaisant, que ce soit avec la méthode du Hold-Out ou la méthode de la cross-validation, nous obtenons des résultats assez similaires avec une accuracy, un recall et une precision supérieurs à 80%. En particulier, dans les deux cas, les KNN se trouvent particulièrement performant pour le recall qui est de 92% dans nos deux situations.On peut conclure que notre modèle prédit particulièrement bien les instances positives : autrement dit, la proportion de vrais positifs ayant été correctement classifié est particulièrement  élevée.
 
 #7 - Conclusion
+Ce projet nous a permis de mener une démarche complète d’apprentissage supervisé pour prédire le turnover des employés. L’analyse préliminaire a révélé un dataset déséquilibré et mis en évidence deux variables particulièrement déterminantes : l’année d’entrée et le niveau de rémunération. Les analyses univariée et multivariée ont confirmé l’absence de corrélations fortes entre les variables quantitatives et permis d’identifier les facteurs les plus pertinents. Deux classifieurs ont ensuite été construits : un arbre de décision, performant et facilement interprétable, puis un KNN, choisi après avoir écarté Naive Bayes dont les hypothèses ne correspondaient pas aux données. L’arbre a montré de très bons résultats pour prédire les employés qui restent, tandis que le KNN a apporté une approche complémentaire fondée sur la similarité entre individus. Au final, ce travail nous a permis de comprendre les mécanismes du départ des employés et de comparer deux méthodes de classification adaptées à notre objectif de prédiction.  
 
 #8 - Répartition des taches
-
-Yelli :
-
-Paulina :
-
-Adélie : Analyse multivariée, certaines parties de la méthode des K plus proches voisins et mise en forme pour les titres.
-
+Dans ce projet, Paulina a réalisé l’analyse préliminaire, incluant la présentation générale du dataset, les commentaires univariés et l’ensemble du travail lié au premier classifieur (arbre de décision), de son implémentation à sa justification. Adélie a contribué à l’analyse multivariée, à certaines étapes de la méthode des K plus proches voisins et à la mise en forme des titres. Yelli a participé à l’analyse univariée, à plusieurs étapes du KNN et à la mise en forme générale du rapport. Chaque membre a également ajusté ou amélioré le travail des autres, ce qui a permis d’obtenir un rendu final cohérent.
 #9 - Utilisation d'IA.
 
 L'IA n'a pas été utilisée pour fournir un code mais simplement pour corriger certaines syntaxes ou incohérences lorsqu'une erreur était déclenchée par le code et que nous ne parvenions pas à la régler de nous même. Le code en lui-même, ainsi que les commentaires, a été entièrement réalisé par nos soins.
