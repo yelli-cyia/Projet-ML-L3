@@ -10,7 +10,7 @@ header-includes:
 - "\\fancyhead[LO]{Projet du cours de Compléments de Mathématiques 2 2025-2026}"
 ---
 
-# PROJET DU COURS DE COMPLEMENT DE MATHEMATIQUES 2
+# PROJET DU COURS DE COMPLEMENT \n DE MATHEMATIQUES 2
 # Introduction
 
 ## Contexte
@@ -30,6 +30,7 @@ Cette démarche s’articule autour des axes suivants :
 - Isoler les variables explicatives (démographiques, salariales et professionnelles) les plus pertinentes pour modéliser le départ.
 
 - Structurer et traiter les données pour permettre l'entraînement d'un modèle de classification efficace sur la variable `LeaveOrNot`.
+
 ## Source des données
 
 Le jeu de données utilisé dans ce projet est disponible à l’adresse suivante :
@@ -43,31 +44,31 @@ Le dataset contient 9 variables, réparties en variables qualitatives, quantitat
 ## 1.1 - Variables qualitatives :
 Ces variables représentent les catégories et les attributs non numériques des employés :
 
-- Education : Niveau d’études atteint (Bachelors, Masters, PHD).
+- **Education** : Niveau d’études atteint (Bachelors, Masters, PHD).
 
-- City : Ville d'affectation de l'employé (Bangalore, Pune, New Delhi).
+- **City** : Ville d'affectation de l'employé (Bangalore, Pune, New Delhi).
 
-- Gender : Genre de l'employé (Male, Female).
+- **Gender** : Genre de l'employé (Male, Female).
 
-- EverBenched : indique si l’employé a déjà été sans mission temporairement (Yes/No).
+- **EverBenched** : indique si l’employé a déjà été sans mission temporairement (Yes/No).
 
 ## 1.2 - Variables quantitatives :
 Ces variables mesurent des données numériques et temporelles :
 
-- JoiningYear : Année d'intégration au sein de l’entreprise.
+- **JoiningYear** : Année d'intégration au sein de l’entreprise.
 
-- PaymentTier : Segmentation de la rémunération (échelonnée de 1 pour le niveau le plus faible à 3 pour le plus élevé).
+- **PaymentTier** : Segmentation de la rémunération (échelonnée de 1 pour le niveau le plus faible à 3 pour le plus élevé).
 
-- Age : Âge actuel de l’employé.
+- **Age** : Âge actuel de l’employé.
 
-- ExperienceInCurrentDomain : Nombre d’années d’expérience acquises dans le domaine d'activité actuel.
+- **ExperienceInCurrentDomain** : Nombre d’années d’expérience acquises dans le domaine d'activité actuel.
 
 ## 1.3 - Variable cible
 
 La variable cible est la variable que l’on cherche à prédire.
 - `LeaveOrNot` :
-  - `0` : l’employé reste dans l’entreprise
-  - `1` : l’employé quitte l’entreprise
+ - `0` : l’employé reste dans l’entreprise
+ - `1` : l’employé quitte l’entreprise
 
 ## 1.5 - Chargement et découverte des données
 
@@ -77,16 +78,15 @@ Dans un premier temps, nous importons la base de données puis nous observons sa
 data_project=read.csv("Employee.csv")
 ```
 
-Déterminons le nombre de lignes et de colonnes de la base de données
+Déterminons le nombre de lignes et de colonnes de la base de données et un aperçu du jeu de données.
 
 ```{r}
 dim(data_project)      #dimension de la base de données
-colnames(data_project) #nom des colonnes
 head(data_project)
 ```
 
-# 2 - Analyse des variables (début de l'analyse univariées)
-
+# 2 - Analyse unavriée
+COMMENTAIRE...
 Ce que nous cherchons à prédire est le fait de savoir si un individu va quitter ou non l'entreprise. Nous allons donc travailler avec la variable LeaveOrNot qui est une variable binaire 0 si l'employé reste et 1 si l'employé part
 
 ```{r}
@@ -97,18 +97,7 @@ summary(data_project$LeaveOrNot)
 
 Au vu de nos données, nous considérons que toutes les variables sont toutes utiles pour notre étude, nous n'allons donc pas supprimer ou fusionner des variables de notre jeu de données.
 
-## 2.1 - Transformation des variables pour notre étude
-
-Pour la variable Education, il faut faire un label encoding.
-
-```{r}
-#J'hésite à regrouper l'âge en classe d'âge
-
-#data_project$Education = as.numeric(factor(data_project$Education, 
-                          #           levels = c("Bachelors", "Masters", "PHD")))
-```
-
-## 2.2 - Répartition
+## 2.1 - Répartition
 
 ```{r}
 quantitatives_vars= data.frame(JoiningYear= data_project$JoiningYear , 
@@ -122,7 +111,34 @@ qualitatives_vars= data.frame(Education=data_project$Education,
                               Benched=data_project$EverBenched)
 ```
 
-## 2.3 - Les Variables quantitatives
+## 2.2. Analyse statististique
+
+### 2.2.1. Variables quantitatives
+
+Effectuer l'analyse statistique descriptive de chacune des variables quantitatives incluses dans `quantitative_vars`
+
+```{r}
+summary(quantitatives_vars)
+```
+COMMENTAIRE
+
+### 2.2.2. Variables qualitatives
+
+Pour chacune des variables qualitatives incluses dans `qualitative_vars`
+```{r}
+summary(qualitative_vars)
+```
+COMMENTAIRE
+### 2.2.3. Target
+
+Indiquer le nombre d’observations tombées dans chacune des deux catégories de la réponse 
+```{r}
+summary(target)
+```
+COMMENTAIRE
+## 2.3. Analyse graphique
+
+### 2.3.1 - Les Variables quantitatives
 
 ```{r, out.width = "50%", fig.align = "center"}
 for(i in 1:ncol(quantitatives_vars)){
@@ -131,8 +147,8 @@ for(i in 1:ncol(quantitatives_vars)){
        xlab = colnames(quantitatives_vars)[i])
 }
 ```
-
-## 2.4 - Les Variables qualitatives
+COMMENTAIRE
+### 2.3.2 - Les Variables qualitatives
 
 ```{r, out.width = "50%", fig.align = "center"}
 for(i in 1:ncol(qualitatives_vars)){
@@ -141,7 +157,7 @@ for(i in 1:ncol(qualitatives_vars)){
           xlab = colnames(qualitatives_vars)[i])
 }
 ```
-
+COMMENTAIRE
 #3 - Analyse multivariée 
 
 Il est important d’étudier la relation entre les différentes variables explicatives car certaines peuvent parfois être redondantes. De plus, nous allons vérifier qu'il n'y est pas une forte colinéarité entre variables pouvant poser problème en rendant les modèles moins fiables ou plus difficiles à interpréter.
@@ -239,7 +255,7 @@ for(i in 1:ncol(qualitatives_vars)){
 ```
 On observe des proportions d'individus différentes pour chacune des variables. Cependant, les différences sont bien présentes mais ne semblent pas flagrante.
 
-PREMIERE PARTIE QUI EST GOOD !!!!!!!!!
+PHRASE DE TRANSITION Pour passer aux classifieurs.
 
 # 4 - Classifieur 1: Arbre de décisions : 
 
