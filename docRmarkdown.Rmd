@@ -501,6 +501,20 @@ target_train                = target[-c(inTest,inValidation)]
 ```
 
 Notons que nous n'avons pas de variables manquantes (comme vu dans la partie précédente) ; il est donc inutile de faire de l'imputation de variables manquantes.
+Nous allons standardiser nos variables en faisant de la normalisation Min-Max. Pour nos variables `Gender` et `Benched` qui sont comprises déjà entre 0 et 1, la standardisation n'est donc pas nécessaire.
+Avec la méthode range, la normalisation ne se fait que sur les variables en dehors de [0,1] de `predictive_vars_train`, excluant automatiquement nos deux variables binaires.
+
+On doit calculer le minimum et maximum (de chaque variable) sur la partie Train seulement pour éviter le data leakage. Ensuite on peut appliquer la transformation Min-Max utilisant le minimum et le maximum dans Train à la partie Test et à la partie Validation. Ainsi on est certain qu'aucune information provenant de la partie Validation ou de la partie Test ne sera utilisée pour l'apprentissage.
+
+```{r}
+Proc = preProcess(predictive_vars_train, method = "range")
+predictive_vars_train = predict(Proc, predictive_vars_train)
+predictive_vars_validation = predict(Proc, predictive_vars_validation)
+
+
+predictive_vars_test = predict(Proc, predictive_vars_test)
+
+```
 
 Installons le package `class`, qui contient la méthode KNN.
 
@@ -508,14 +522,14 @@ Installons le package `class`, qui contient la méthode KNN.
 install.packages("class")
 ```
 
-On charge le package class utile à la méthode des K plus proches voisins ainsi que caret, qui nous servira à calculer le recall, l'accuracy et la precision
+On charge le package `class` utile à la méthode des K plus proches voisins ainsi que `caret`, déjà téléchargé, qui nous servira à calculer le recall, l'accuracy et la précision
 
 ```{r, results = "hide", message = FALSE}
 library(class)
 library(caret)
 ```
 
-Faisons "l'apprentissage" de la méthode des K plus proches voisins sur la partie Train, puis utilisons la partie Validation pour calculer l'accuracy, le recall, et la précision
+Faisons "l'apprentissage" de la méthode des K plus proches voisins sur la partie Train, puis utilisons la partie Validation pour calculer l'accuracy, le recall, et la précision. Nous prenons des valeurs de K allant de 1 à 20.
 
 ```{r, results = "hide"}
 KGrid = 1:20
@@ -534,7 +548,7 @@ for(K in KGrid){
 }
 ```
 
-On peut tracer les différentes métriques en fonction des valeurs de K étudiées
+On peut tracer les différentes métriques en fonction des valeurs de K étudiées.
 
 ```{r, out.width = "50%", fig.align = "center"}
 plot(KGrid, accuracy_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
@@ -542,26 +556,26 @@ plot(KGrid, recall_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Recal
 plot(KGrid, precision_val, type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
 ```
 
-Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur 5 semble intéressante et offre le meilleur compromis entre les trois, nous permettant ainsi de quasiment maximiser la précision tout en ayant des valeurs pas trop faible pour l'accuracy et le recall.
+Il y a plusieurs valeurs de K qui peuvent sembler pertinentes : on peut se dire que la valeur k = 10 semble intéressante et offre un bon équilibre entre les trois métriques, nous permettant ainsi de maximiser l'accuracy tout en ayant des valeurs quasiment maximales pour le recall et la precision.
 
 #Performance du classifieur final
 
-On pourrait enfin évaluer les performances du classifieur final obtenu pour K = 5 voisins sur la partie Test.
+On pourrait enfin évaluer les performances du classifieur final obtenu pour K = 10 voisins sur la partie Test.
 
-Nous avons donc choisi la valeur de k, nous pouvons maintenant recombier les parties Train et Validation pour faire l'apprentissage sur un jeu de donnée encore plus gros.
+Nous avons donc choisi la valeur de k, nous pouvons maintenant recombiner les parties Train et Validation pour faire l'apprentissage sur un jeu de donnée encore plus gros.
 
 ```{r, results = "hide"}
 rbind(predictive_vars_train, predictive_vars_validation)
 c(target_train, target_validation)
 ```
-
+On recombine le train et validation et on regarde les valeurs de l'accuracy, de la precision et du recall.
 
 ```{r, results = "hide"}
 target_pred = knn(
   train = rbind(predictive_vars_train, predictive_vars_validation),
   test  = predictive_vars_test,
   cl    = c(target_train, target_validation),
-  k     = 5
+  k     = 10
 )
 
 accuracy_test = mean(target_pred == target_test)
@@ -578,105 +592,178 @@ precision_test = precision(
   relevant = "Rester"
 )
 
+```
 
+Regardons les résultats :
+```{r}
 confusionMatrix(target_pred, target_test)$table
 
 accuracy_test
 recall_test
 precision_test
+
+mean(c(accuracy_test, recall_test, precision_test))
 ```
 
-
+Nous avons plus de 80% de prédictions correctes pour chacunes de nos trois métriques. La moyenne de l'accuracy, du recall et de la precision est de 0.841.
 
 Cette partie à revoir !!!!
+
+## 3. Méthode des K plus proches voisins avec cross-validation pour sélectionner le nombre de voisins
+Comme avant, on met une partie test de coté pour pouvoir évaluer les performances du classifieur final. La différence c'est qu'on voudrait séparer du reste du jeu de données en différentes 10 portions différentes et les utiliser de manière répétée comme Train et Validation. La meilleure valeur de k va donc être choisie en utilisant la moyenne de chacuns des 10 classifieurs.
+Pour éviter un data leakage, il va falloir faire pour chacun des fold une standardisation Min-Max dans le train pour l'imputer ensuite dans la partie validation. Cette étape va donc être répétée pour chaque itération de la cross-validation.
+
+On sépare d'abord le test avec 10% des observations.
 ```{r}
-set.seed(1954)
-inTest                  = sample(1:n, size = round(0.1 * n), replace = FALSE)
-predictive_vars_test    = predictive_vars[inTest,]
-target_test             = target[inTest]
-predictive_vars_remain  = predictive_vars[-inTest,] # ce qu'on partagera en Train 
-# et Validation à chaque CV itération, partie utilisée pour validation
-target_remain           = target[-inTest]
+set.seed(1234)
+inTest = sample(1:n, size = round(0.1 * n), replace = FALSE)
 
-n_remain    = nrow(predictive_vars_remain)
-nfolds      = 10
-KGrid       = 1:20 #valeur de K qu'on veut étudier
-  
-folds   = NULL
-for(i in 1:n_remain){
-  #seulement les individus restants (partie remain) sont mit dans les 10 folds
-  folds = c(folds, sample(1:nfolds, 1, replace = FALSE))
-}
+predictive_vars_test = predictive_vars[inTest,]
+target_test = target[inTest]
 
+predictive_vars_remain = predictive_vars[-inTest,]
+target_remain = target[-inTest]
+
+```
+
+Ensuite on crée les paramètres de la corss validation : nous voulons 10 folds différents et nous étudions des valeurs de k allant de 1 à 20.
+
+```{r}
+n_remain = nrow(predictive_vars_remain)
+nfolds = 10 
+KGrid = 1:20
+```
+
+Nous pouvons maintenant faire la cross-validation ;
+```{r}
+
+#Création des folds
+folds = sample(rep(1:nfolds, length.out = n_remain))
+
+#Stockage des résultats
 accuracy_fold   = NULL
 recall_fold     = NULL
 precision_fold  = NULL
-for(k in 1:nfolds){ # pour faire les itérations de la CV
-  inFold                      = which(folds == k)
-  predictive_vars_train       = predictive_vars_remain[-inFold,]  # pour entrainer le modèle
-  predictive_vars_validation  = predictive_vars_remain[inFold,]   # pour évaluer le modèle
-  #on a réparti individu dans train et validation, mtn on fait normalisation
-  target_train                = target_remain[-inFold]
-  target_validation           = target_remain[inFold]
-    
- 
+
+#Cross-validation
+for(k in 1:nfolds){
+  
+  inFold = which(folds == k)
+  
+  predictive_vars_train = predictive_vars_remain[-inFold,]
+  predictive_vars_validation = predictive_vars_remain[inFold,]
+  
+  target_train = target_remain[-inFold]
+  target_validation = target_remain[inFold]
+  
+  Proc = preProcess(predictive_vars_train, method = "range")
+  
+  predictive_vars_train = predict(Proc, predictive_vars_train)
+  predictive_vars_validation = predict(Proc, predictive_vars_validation)
+  
   accuracy_K  = NULL
   recall_K    = NULL
   precision_K = NULL
-  for(K in KGrid){ # pour chaque valeur de K dans KGrid on a fait "l'apprentissage" du 
-    # classifieur, puis on prédit la réponse des individidus dans la partie Validation, 
-    # et enfin on compare les prédictions aux vraies valeurs de la réponse
-    #exactement ce que nous avons fait précedemment dans du hold-Out
-    target_pred = knn(train = predictive_vars_train, 
-                      test = predictive_vars_validation, 
-                      cl = target_train, k = K) 
-      
-    accuracy_K      = c(accuracy_K, mean(target_pred == target_validation))
-    recall_K        = c(recall_K, recall(data = target_pred, 
-                                         reference = target_validation, 
-                                         relevant = "Rester"))
-    precision_K     = c(precision_K, precision(target_pred, 
-                                               reference = target_validation, 
-                                               relevant = "Rester"))
-    }
+  
+  for(K in KGrid){
     
-    accuracy_fold = rbind(accuracy_fold, accuracy_K)
-    recall_fold = rbind(recall_fold, recall_K)
-    precision_fold = rbind(precision_fold, precision_K)
+    target_pred = knn(
+      train = predictive_vars_train,
+      test  = predictive_vars_validation,
+      cl    = target_train,
+      k     = K
+    )
+    
+    accuracy_K = c(accuracy_K,
+                  mean(target_pred == target_validation))
+    
+    recall_K = c(recall_K,
+                 recall(data = target_pred,
+                        reference = target_validation,
+                        relevant = "Rester"))
+    
+    precision_K = c(precision_K,
+                    precision(data = target_pred,
+                              reference = target_validation,
+                              relevant = "Rester"))
   }
+  
+  accuracy_fold = rbind(accuracy_fold, accuracy_K)
+  recall_fold = rbind(recall_fold, recall_K)
+  precision_fold = rbind(precision_fold, precision_K)
+}
+
+```
+
+On nomme les lignes et les colonnes pour plus de clarté :
+
+```{r}
 rownames(accuracy_fold) = paste0("fold_",1:nfolds)
 rownames(recall_fold) = paste0("fold_",1:nfolds)
 rownames(precision_fold) = paste0("fold_",1:nfolds)
-  
+
 colnames(accuracy_fold) = paste0("K_", KGrid)
 colnames(recall_fold) = paste0("K_", KGrid)
 colnames(precision_fold) = paste0("K_", KGrid)
 ```
+
+
+Nous allons maintenant séléctionner l'hyperparamètre k.Nous utilisons la méthode `colMeans` qui calcule la moyenne de chaque colonne d’un tableau. Nous avons donc la moyenne de l’accuracy, du recall et de la precision pour chaque K sur les 10 folds.
 
 ```{r}
 colMeans(accuracy_fold)
 colMeans(recall_fold)
 colMeans(precision_fold)
 ```
-
+Nous allons tracer la 10-fold mean accuracy, recall et precision en fonction des valeurs de K étudiées.
 ```{r, out.width = "50%", fig.align = "center"}
 plot(KGrid, colMeans(accuracy_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Accuracy")
 plot(KGrid, colMeans(recall_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Recall")
 plot(KGrid, colMeans(precision_fold), type = 'l', xlab = "K, nombre de voisins", ylab = "Precision")
 ```
+La valeur k = 11 offre un bon compromis pour l'accuracy et le recall, mais une precision plus faible. La precision et le recall évoluant dans des sens opposés, il est dur de maximiser les deux.
 
+De nouveau, on peut enfin évaluer les performances du classifieur final obtenu pour K = 11 voisins sur la partie Test. On peut donc recombiner nos jeux de données pour évaluer sur un jeu de donnée encore plus conséquent. Il faut penser à faire la normalisation Min-Max. 
 ```{r}
 
-target_pred = knn(train =predictive_vars_train, test = predictive_vars_test, 
-                  cl = target_train, k = 4) 
-  
-accuracy_test  = mean(target_pred == target_test)
-recall_test    = recall(data = target_pred, reference = target_test, 
-                           relevant = "Rester")
-precision_test = precision(data = target_pred, reference = target_test, 
-                              relevant = "Rester")
+Proc = preProcess(predictive_vars_remain, method = "range")
 
-accuracy_test
-recall_test 
-precision_test
+predictive_vars_remain = predict(Proc, predictive_vars_remain)
+predictive_vars_test   = predict(Proc, predictive_vars_test)
+
+target_pred = knn(
+  train = predictive_vars_remain,
+  test  = predictive_vars_test,
+  cl    = target_remain,
+  k     = 11
+)
+
+accuracy_test = mean(target_pred == target_test)
+
+recall_test = recall(
+  data = target_pred,
+  reference = target_test,
+  relevant = "Rester"
+)
+
+precision_test = precision(
+  data = target_pred,
+  reference = target_test,
+  relevant = "Rester"
+)
+
+confusionMatrix(target_pred, target_test)$table
+
 ```
+
+Regardons les résultats obtenus : 
+```{r}
+accuracy_test
+recall_test
+precision_test
+
+mean(c(accuracy_test, recall_test, precision_test))
+```
+De nouveau, nous obtenons des valeurs pour l'accuracy, le recall et la precision toutes supérieur à 80%. La moyenne de l'accuracy, du recall et de la precision est légèrement plus haute avec la cross-validation.
+
+###Conclusion
