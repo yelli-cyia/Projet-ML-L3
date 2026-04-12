@@ -234,7 +234,7 @@ PREMIERE PARTIE QUI EST GOOD !!!!!!!!!
 Ce code calcule le nombre de valeurs manquantes pour chaque variable du jeu de données.
 
 ```{r}
-#colSums(is.na(data))
+colSums(is.na(data_project))
 ```
 
 On observe que toutes les colonnes contiennent 0 valeurs manquantes cela signifie que nous n'avons pas besoin d'appliquer de méthodes d'imputation.
@@ -265,8 +265,8 @@ partager le jeu de données en Train/Test, avec 80% des observations placées da
 
 Ce bloc de code réalise la séparation du jeu de données en deux parties : 80 % pour l’apprentissage (train), 20 % pour le test (test). La fonction set.seed(1234) garantit que la sélection aléatoire sera reproductible. Ensuite, sample() tire au hasard les indices correspondant aux observations du jeu d’apprentissage. Les variables explicatives (predictive_vars) et la variable cible (target_vector) sont ensuite découpées selon ces indices.
 ```{r}
-set.seed(1954) #fixe la graine
-#on va créer nos parties séparées
+set.seed(1954)
+
 n = nrow(data_project) 
 inTrain = sample(1:n, size = round(0.8 * n), replace = FALSE)
 
@@ -417,7 +417,10 @@ L’analyse graphique des variables quantitatives (histogrammes et boxplots) mon
   
 #Classifieur : KNN :
 
-Nous verifions que toutes les variables sont bien du bon data type
+La méthode des K plus proches voisins est une méthode d’apprentissage supervisé qui prédit la catégorie d’appartenance d’une nouvelle observation en utilisant celles de K instances du jeu de données d’entraînement qui lui sont le plus similaires possible. Il faut pour cela trouver une valeur de k appropriée de manière à prédire le mieux possible la catégorie d'appartenance à un individu.
+
+
+Nous verifions avant tout que toutes les variables sont bien du bon data type :
 
 ```{r}
 qualitatives_vars$Education = as.factor(qualitatives_vars$Education)
@@ -429,22 +432,26 @@ qualitatives_vars$EverBenched = as.factor(qualitatives_vars$EverBenched)
 target = as.factor(target)
 ```
 
-Pour la méthode des arbres de décision, nous avons déjà transformé la variable `Education` afin de pouvoir la traiter comme une variable expliquative numérique dans la méthode des KNN. Nous l'avons stocké dans le data frame nommé `qualitative_vars_encoded`. Nous avons également transformé Gender et EverBenched en dummy variable, celle-ci sont stockées dans le data frame nommé `qualitative_vars_dummy`
-
+Nous transformons ensuite nos variables qualitatives `Gender` et `EverBenched` en variable binaire, de manière à ce qu'elle soit dans un format numérique et apte à être utilisée pour la méthode des K plus proches voisins.
 
 ```{r}
 qualitatives_vars_dummy= data.frame(Women= 1*(qualitatives_vars$Gender=="Female"),
                                     Benched= 1*(qualitatives_vars$EverBenched=="Yes"))
 ```
 
-Pour le label encoding
+Nous faisons du label encoding pour les variables qualitatives avec plus de deux catégorie :
 
 ```{r}
-qualitative_vars_encoded=as.data.frame(as.numeric(factor(qualitatives_vars$Education, 
-                                     levels = c("Bachelors", "Masters", "PHD"))))
+qualitative_vars_encoded = data.frame(
+  Education = as.numeric(factor(qualitatives_vars$Education,
+                                levels = c("Bachelors", "Masters", "PHD"))),
+  
+  City = as.numeric(factor(qualitatives_vars$City,
+                           levels = c("Bangalore", "Pune", "New Delhi")))
+)
 ```
 
-Faire des commentaires!!!!
+Nous créons maintenant un dataframe `predictive_vars` avec nos variables qui seront cette fois-ci toutes numériques et utilisées comme des variables quantitatives, les rendant ainsi apte à l'utilisation de KNN.
 
 ```{r}
 predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_vars$JoiningYear,          PaymentTier=quantitatives_vars$PaymentTier,Experience = quantitatives_vars$Experience,
@@ -452,16 +459,16 @@ predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_v
 
 ```
 
-On vérifie que les variables de `predictive_vars` sont bien de type `num` ou `int`
+On vérifie que les variables de `predictive_vars` sont bien de type `num` ou `int`.
 
 ```{r}
 # Vérifier le type de chaque colonne
 sapply(predictive_vars, class)
 ```
+On remarque que c'est bien le cas. Nous pouvons donc faire la méthode des KNN.
 
-On remarque que c'est bien le cas. 
-
-#Répartition en train/test
+#Répartition en train/test/validatoin
+Nous répartissons nos variables dans un train/test. Notons qu'il n'y a pas de risque de data leakage de répartir les données après la transformation des variables quantitative, car pour les différentes variables obtenues nous avons utliser les data_type, nous n'avons pas utiliser d'information provenant des autres individus, c'est simplement comme si on avait ré-organisé les données. On recode juste les différentes catégories avec des variables numériques ou binaires. Par contre, la normalisation de nos données doit se faire après la répartition en train/test/validation.
 
 ```{r}
 inTest = sample(1:n, size = round(0.2 * n), replace = FALSE)
@@ -472,7 +479,7 @@ predictive_vars_train   = predictive_vars[-inTest,]
 target_train            = target[-inTest]
 ```
 
-on fixe la graine dans un premier temps. On répartit de manière aléatoire 10% pour le Test, 10% pour la validation. Le reste sera donc dans le Train. On aura en tout 20% dans les valeurs affichées à la fin de ce code.
+Maintenant, on fixe la graine dans un premier temps. On répartit de manière aléatoire 10% pour le Test, 10% pour la validation. Le reste sera donc dans le Train. On aura en tout 20% dans les valeurs affichées à la fin de ce code.
 
 ```{r, results = "hide"}
 set.seed(1954)
@@ -482,7 +489,6 @@ inValidation  = sample(notinTest, size = round(0.1 * n), replace = FALSE)
 
 c(inTest, inValidation)
 ```
-
 On réparti ensuite le split en 80/10/10 :
 
 ```{r}
