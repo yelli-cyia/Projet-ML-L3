@@ -416,7 +416,7 @@ La méthode des K plus proches voisins est une méthode d’apprentissage superv
 
 ## 6.1 - Codage binaire (dummy coding) et label encoding
 
-Nous verifions avant tout que toutes les variables sont bien du bon data type :
+Nous vérifions avant tout que toutes les variables sont bien du bon data type :
 
 ```{r}
 qualitatives_vars$Education = as.factor(qualitatives_vars$Education)
@@ -428,15 +428,15 @@ qualitatives_vars$EverBenched = as.factor(qualitatives_vars$EverBenched)
 target = as.factor(target)
 ```
 
-La méthode des K plus proches voisins ne marchent qu'avec des variables quantitatives.
-Nous transformons donc nos variables qualitatives `Gender` et `EverBenched` en variable binaire, de manière à ce qu'elle soit dans un format numérique et apte à être utilisée pour la méthode des K plus proches voisins.
+La méthode des K plus proches voisins ne marche qu'avec des variables quantitatives.
+Nous transformons donc nos variables qualitatives `Gender` et `EverBenched` en variables binaires, de manière à ce qu'elles soient dans un format numérique et aptes à être utilisées pour la méthode des K plus proches voisins.
 
 ```{r}
 qualitatives_vars_dummy= data.frame(Women= 1*(qualitatives_vars$Gender=="Female"),
                                     Benched= 1*(qualitatives_vars$EverBenched=="Yes"))
 ```
 
-Nous faisons du label encoding pour les variables qualitatives avec plus de deux catégorie :
+Nous faisons du label encoding pour les variables qualitatives avec plus de deux catégories :
 
 ```{r}
 qualitative_vars_encoded = data.frame(
@@ -445,7 +445,7 @@ qualitative_vars_encoded = data.frame(
 )
 ```
 
-Nous créons maintenant un dataframe `predictive_vars` avec nos variables qui seront cette fois-ci toutes numériques et utilisées comme des variables quantitatives, les rendant ainsi apte à l'utilisation de KNN.
+Nous créons maintenant un dataframe `predictive_vars` avec nos variables qui seront cette fois-ci toutes numériques et utilisées comme des variables quantitatives, les rendant ainsi aptes à l'utilisation du KNN.
 
 ```{r}
 predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_vars$JoiningYear,          PaymentTier=quantitatives_vars$PaymentTier,Experience = quantitatives_vars$Experience,
@@ -453,7 +453,7 @@ predictive_vars = cbind(Age=quantitatives_vars$Age,JoiningYear = quantitatives_v
 
 ```
 
-On vérifie que les variables de `predictive_vars` sont bien de type `num` ou `int`.
+On vérifie que les variables de `predictive_vars` sont bien de types `num` ou `int`.
 
 ```{r}
 sapply(predictive_vars, class)
@@ -465,7 +465,7 @@ On remarque que c'est bien le cas. Nous pouvons donc faire la méthode des KNN.
 
 ### 6.2.1 - Répartition du jeu de données
 
-Nous répartissons nos variables dans un train/test. Notons qu'il n'y a pas de risque de data leakage de répartir les données après la transformation des variables quantitative, car pour les différentes variables obtenues nous avons utliser les data_type, nous n'avons pas utiliser d'information provenant des autres individus, c'est simplement comme si on avait ré-organisé les données. On recode juste les différentes catégories avec des variables numériques ou binaires. Par contre, la normalisation de nos données doit se faire après la répartition en train/test/validation.
+Nous répartissons nos variables dans un train/test. Notons qu'il n'y a pas de risque de data leakage de répartir les données après la transformation des variables quantitatives, car pour les différentes variables obtenues nous avons utliser les data_type, nous n'avons pas utiliser d'information provenant des autres individus, c'est simplement comme si on avait ré-organisé les données. On recode juste les différentes catégories avec des variables numériques ou binaires. Par contre, la normalisation de nos données doit se faire après la répartition en train/test/validation.
 
 ```{r}
 inTest = sample(1:n, size = round(0.2 * n), replace = FALSE)
@@ -486,7 +486,7 @@ inValidation  = sample(notinTest, size = round(0.1 * n), replace = FALSE)
 c(inTest, inValidation)
 ```
 
-On réparti ensuite le split en 80/10/10 :
+On répartit ensuite le split en 80/10/10 :
 
 ```{r}
 predictive_vars_test        = predictive_vars[inTest,]
