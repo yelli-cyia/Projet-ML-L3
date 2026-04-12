@@ -410,7 +410,7 @@ Nous avons choisi l’arbre de décision comme premier classifieur car il accept
 
 L’analyse graphique des variables quantitatives (histogrammes et boxplots) montre que leurs distributions ne suivent pas une loi normale et se recouvrent largement entre les classes, ce qui limite l’efficacité du classifieur naïf bayésien. De plus, les tests du Chi‑deux révèlent une dépendance très significative entre les variables qualitatives, violant directement l’hypothèse d’indépendance conditionnelle. Ainsi, l’hypothèse naïve n’est pas respectée dans notre jeu de données, ce qui justifie de ne pas retenir Naive Bayes comme second classifieur et de retenir par conséquent la méthode de K plus proches voisins.
 
-# 6 - Classifieur 2 : KNN :
+# 6 - Classifieur 2 : La méthode des K plus proches voisins (KNN) 
 
 La méthode des K plus proches voisins est une méthode d’apprentissage supervisé qui prédit la catégorie d’appartenance d’une nouvelle observation en utilisant celles de K instances du jeu de données d’entraînement qui lui sont le plus similaires possible. Il faut pour cela trouver une valeur de k appropriée de manière à prédire le mieux possible la catégorie d'appartenance à un individu.
 
